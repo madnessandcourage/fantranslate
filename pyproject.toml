@@ -8,7 +8,11 @@ version = "0.1.0"
 description = "A command line tool for fan translation"
 authors = [{name = "Your Name", email = "your.email@example.com"}]
 requires-python = ">=3.8"
-dependencies = []
+dependencies = [
+    "pytest",
+    "python-dotenv==1.0.0",
+    "openai"
+]
 readme = "README.md"
 
 [project.scripts]
@@ -52,3 +56,9 @@ pythonVersion = "3.8"
 typeCheckingMode = "strict"
 reportMissingImports = true
 reportMissingTypeStubs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
