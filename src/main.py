@@ -9,7 +9,7 @@ def main():
     if api_key:
         print("API key loaded successfully")
         from ai import ai
-        joke = ai("You are a comedian.", "Tell me a funny joke.")
+        joke = ai("You are a comedian.", "Tell me a funny joke not about science.")
         print(joke)
     else:
         print("Failed to load API key")
