@@ -17,25 +17,16 @@ def test_ai_memoisation():
     if os.path.exists(".ai_recordings"):
         shutil.rmtree(".ai_recordings")
 
-    with patch("src.ai.client") as mock_client:
-        mock_response = type(
-            "MockResponse",
-            (),
-            {
-                "choices": [
-                    type(
-                        "MockChoice",
-                        (),
-                        {
-                            "message": type(
-                                "MockMessage", (), {"content": "Mocked AI response"}
-                            )()
-                        },
-                    )()
-                ]
-            },
-        )()
+    with patch("src.ai.get_client") as mock_get_client:
+        from unittest.mock import MagicMock
+
+        mock_client = MagicMock()
+        mock_response = MagicMock()
+        mock_response.choices = [MagicMock()]
+        mock_response.choices[0].message.content = "Mocked AI response"
         mock_client.chat.completions.create.return_value = mock_response
+
+        mock_get_client.return_value = mock_client
 
         # Call ai with specific args
         result1 = ai("test_system", "test_user", "test_model")
