@@ -53,12 +53,20 @@ def main():
     search_parser = char_subparsers.add_parser("search", help="Search for characters")
     search_parser.add_argument("query", help="Search query")
 
-    # Update character
-    update_parser = char_subparsers.add_parser("update", help="Update a character")
-    update_parser.add_argument("name", help="Character name to update")
-    update_parser.add_argument("--new_name", help="New name")
-    update_parser.add_argument(
-        "--gender", choices=["male", "female", "other"], help="New gender"
+    # Add short name
+    add_sn_parser = char_subparsers.add_parser(
+        "add_short_name", help="Add a short name to a character"
+    )
+    add_sn_parser.add_argument("name", help="Character name")
+    add_sn_parser.add_argument("short_name", help="Short name to add")
+
+    # Set gender
+    set_gender_parser = char_subparsers.add_parser(
+        "set_gender", help="Set character gender"
+    )
+    set_gender_parser.add_argument("name", help="Character name")
+    set_gender_parser.add_argument(
+        "gender", choices=["male", "female", "other"], help="Gender"
     )
 
     # Demo workflow
@@ -123,30 +131,24 @@ def handle_character_command(args: argparse.Namespace, api_key: Optional[str]) -
         return
 
     from fantranslate.tools.character import (  # type: ignore
+        add_character_short_name,
         create_character,
         search_character,
-        update_character,
+        set_character_gender,
     )
 
     if args.char_command == "create":
-        data = {"name": args.name, "gender": args.gender}
-        result = create_character(json.dumps(data))
+        result = create_character(args.name, args.gender)
         print(f"Created character: {result}")
     elif args.char_command == "search":
         result = search_character(args.query)
         print(f"Search results: {result}")
-    elif args.char_command == "update":
-        updates = {}
-        if args.new_name:
-            updates["name"] = args.new_name
-        if args.gender:
-            updates["gender"] = args.gender
-        if updates:
-            data = {"name": args.name, "updates": updates}
-            result = update_character(json.dumps(data))
-            print(f"Updated character: {result}")
-        else:
-            log_error("No updates specified")
+    elif args.char_command == "add_short_name":
+        result = add_character_short_name(args.name, args.short_name)
+        print(f"Added short name: {result}")
+    elif args.char_command == "set_gender":
+        result = set_character_gender(args.name, args.gender)
+        print(f"Set gender: {result}")
 
 
 def handle_demo(api_key: Optional[str]) -> None:

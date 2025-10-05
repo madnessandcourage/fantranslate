@@ -5,12 +5,11 @@ from ..helpers.settings import settings
 from .translation_string import TranslationString
 
 
-def _ensure_ts(
-    value: Union[str, TranslationString],
-    original_language: str,
-    available_languages: List[str],
-) -> TranslationString:
+def _ensure_ts(value: Union[str, TranslationString]) -> TranslationString:
     if isinstance(value, str):
+        s = settings()
+        original_language = s.translate_from
+        available_languages = [s.translate_from] + s.languages
         return TranslationString(value, original_language, available_languages)
     return value
 
@@ -50,29 +49,16 @@ class Character:
         gender: Optional[Union[str, TranslationString]] = None,
         characteristics: Optional[Union[List[str], List[Characteristic]]] = None,  # type: ignore
     ):
-        s = settings()
-        original_language = s.translate_from
-        available_languages = [s.translate_from] + s.languages
-        self.name = _ensure_ts(name, original_language, available_languages)
-        self.short_names = [
-            _ensure_ts(sn, original_language, available_languages)
-            for sn in (short_names or [])
-        ]
-        self.gender = (
-            _ensure_ts(gender, original_language, available_languages)
-            if gender
-            else None
-        )
+        self.name = _ensure_ts(name)
+        self.short_names = [_ensure_ts(sn) for sn in (short_names or [])]
+        self.gender = _ensure_ts(gender) if gender else None
         if characteristics is None:
             self.characteristics: List[Characteristic] = []
         elif characteristics and isinstance(characteristics[0], str):
             # List of strings, assume confidence 1
             str_list = cast(List[str], characteristics)
             self.characteristics = [
-                Characteristic(
-                    _ensure_ts(text, original_language, available_languages), 1
-                )
-                for text in str_list
+                Characteristic(_ensure_ts(text), 1) for text in str_list
             ]
         else:
             self.characteristics = cast(List[Characteristic], characteristics)  # type: ignore
@@ -82,35 +68,23 @@ class Character:
         name: Optional[Union[str, TranslationString]] = None,
         gender: Optional[Union[str, TranslationString]] = None,
     ):
-        s = settings()
-        original_language = s.translate_from
-        available_languages = [s.translate_from] + s.languages
         if name is not None:
-            self.name = _ensure_ts(name, original_language, available_languages)
+            self.name = _ensure_ts(name)
         if gender is not None:
-            self.gender = _ensure_ts(gender, original_language, available_languages)
+            self.gender = _ensure_ts(gender)
 
     def add_short_name(self, short_name: Union[str, TranslationString]):
-        s = settings()
-        original_language = s.translate_from
-        available_languages = [s.translate_from] + s.languages
-        ts = _ensure_ts(short_name, original_language, available_languages)
+        ts = _ensure_ts(short_name)
         if ts not in self.short_names:
             self.short_names.append(ts)
 
     def remove_short_name(self, short_name: Union[str, TranslationString]):
-        s = settings()
-        original_language = s.translate_from
-        available_languages = [s.translate_from] + s.languages
-        ts = _ensure_ts(short_name, original_language, available_languages)
+        ts = _ensure_ts(short_name)
         if ts in self.short_names:
             self.short_names.remove(ts)
 
     def add_characteristic(self, text: str):
-        s = settings()
-        original_language = s.translate_from
-        available_languages = [s.translate_from] + s.languages
-        ts = TranslationString(text, original_language, available_languages)
+        ts = _ensure_ts(text)
         char = Characteristic(ts)
         self.characteristics.append(char)
 

@@ -1,9 +1,8 @@
 from typing import Any, Dict, List, Optional
 
 from ..helpers.fuzzy import FuzzyIndex
-from ..helpers.settings import settings
+from ..helpers.settings import settings  # type: ignore
 from .character import Character, TranslatedCharacter
-from .translation_string import TranslationString
 
 
 class CharacterCollection:
@@ -41,44 +40,6 @@ class CharacterCollection:
         """Remove a character from the collection."""
         self.characters = [c for c in self.characters if c.name.original_text != name]
         self._rebuild_index()
-
-    def update_character(
-        self,
-        name: str,
-        updates: Dict[str, Any],
-    ) -> Optional[Character]:
-        """Update an existing character."""
-        character = self.search(name)
-        if not character:
-            return None
-
-        s = settings()
-        original_language = s.translate_from
-        available_languages = [s.translate_from] + s.languages
-
-        # Handle updates
-        name_ts = None
-        if "name" in updates:
-            name_ts = TranslationString(
-                updates["name"], original_language, available_languages
-            )
-        gender_ts = None
-        if "gender" in updates:
-            gender_ts = (
-                TranslationString(
-                    updates["gender"], original_language, available_languages
-                )
-                if updates["gender"]
-                else None
-            )
-
-        character.update(name=name_ts, gender=gender_ts)
-
-        # Rebuild index if name changed
-        if "name" in updates:
-            self._rebuild_index()
-
-        return character
 
     def get_character_translation(
         self, name: str, language: str

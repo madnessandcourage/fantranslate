@@ -141,3 +141,4 @@ If LangChain's verbose mode is ever needed for debugging specific LangChain issu
 - Keep functions and modules focused and small.
 - Use `to_dict` / `from_dict` methods for serialization of objects.
 - `original_language` and `available_languages` should ALWAYS be read from settings, not passed as arguments.
+- When serializing data for AI consumption, prefer XML over JSON as AIs tend to handle XML better.

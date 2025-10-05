@@ -4,6 +4,7 @@ from typing import List
 
 from langchain.tools import Tool
 
+from ..helpers.settings import settings
 from ..models.character import Character
 from ..models.character_collection import CharacterCollection
 
@@ -11,56 +12,75 @@ from ..models.character_collection import CharacterCollection
 character_collection = CharacterCollection()
 
 
+def _character_to_xml(character: Character) -> str:
+    """Convert TranslatedCharacter to XML for AI."""
+    s = settings()
+    translated = character.get_translated(s.translate_from)
+    xml_parts = ["<character>"]
+    xml_parts.append(f"<name>{translated.name}</name>")
+    xml_parts.append("<short_names>")
+    for sn in translated.short_names:
+        xml_parts.append(f"<short_name>{sn}</short_name>")
+    xml_parts.append("</short_names>")
+    if translated.gender:
+        xml_parts.append(f"<gender>{translated.gender}</gender>")
+    xml_parts.append("<characteristics>")
+    for char in translated.characteristics:
+        xml_parts.append("<characteristic>")
+        xml_parts.append(f"<sentence>{char['sentence']}</sentence>")
+        xml_parts.append(f"<confidence>{char['confidence']}</confidence>")
+        xml_parts.append("</characteristic>")
+    xml_parts.append("</characteristics>")
+    xml_parts.append("</character>")
+    return "".join(xml_parts)
+
+
 def search_character(query: str) -> str:
     """Search for a character by name or short name. Input: search query string."""
     character = character_collection.search(query)
     if character:
-        return json.dumps(character.to_dict())
+        return _character_to_xml(character)
     else:
         return "Character not found"
 
 
-def create_character(input_str: str) -> str:
-    """Create a new character. Input: JSON with name (required), short_names, gender, characteristics."""
+def create_character(name: str, gender: str = "other") -> str:
+    """Create a new character. Input: name (required), gender (optional, default 'other')."""
     try:
-        data = json.loads(input_str)
-        name = data["name"]
-        short_names = data.get("short_names", [])
-        gender = data.get("gender")
-        characteristics = data.get("characteristics", [])
-
         character = Character(
             name=name,
-            short_names=short_names,
             gender=gender,
-            characteristics=[],  # Will add later
+            characteristics=[],
         )
-        for char_data in characteristics:
-            character.add_characteristic(char_data["sentence"])
         character_collection.add_character(character)
         return f"Character '{name}' created successfully"
     except Exception as e:
         return f"Error creating character: {str(e)}"
 
 
-def update_character(input_str: str) -> str:
-    """Update an existing character. Input: JSON with name (to identify), updates dict (only name and gender allowed). WARNING: Editing name is dangerous."""
+def add_character_short_name(name: str, short_name: str) -> str:
+    """Add a short name to an existing character. Input: character name, short name to add."""
     try:
-        data = json.loads(input_str)
-        name = data["name"]
-        updates = data["updates"]
-        # Filter updates to only allow name and gender
-        allowed_updates = {k: v for k, v in updates.items() if k in ["name", "gender"]}
-        character = character_collection.update_character(
-            name=name,
-            updates=allowed_updates,
-        )
-        if character:
-            return f"Character '{name}' updated successfully"
-        else:
+        character = character_collection.search(name)
+        if not character:
             return f"Character '{name}' not found"
+        character.add_short_name(short_name)
+        character_collection._rebuild_index()  # type: ignore
+        return f"Short name '{short_name}' added to character '{name}'"
     except Exception as e:
-        return f"Error updating character: {str(e)}"
+        return f"Error adding short name: {str(e)}"
+
+
+def set_character_gender(name: str, gender: str) -> str:
+    """Set the gender of an existing character. Input: character name, gender."""
+    try:
+        character = character_collection.search(name)
+        if not character:
+            return f"Character '{name}' not found"
+        character.update(gender=gender)
+        return f"Gender of character '{name}' set to '{gender}'"
+    except Exception as e:
+        return f"Error setting gender: {str(e)}"
 
 
 def get_character_translation(input_str: str) -> str:
@@ -90,10 +110,16 @@ create_character_tool = Tool(
     func=create_character,
 )
 
-update_character_tool = Tool(
-    name="UpdateCharacter",
-    description="Update name or gender of an existing character. Be careful with editing the name.",
-    func=update_character,
+add_short_name_tool = Tool(
+    name="AddCharacterShortName",
+    description="Add a short name to an existing character.",
+    func=add_character_short_name,
+)
+
+set_gender_tool = Tool(
+    name="SetCharacterGender",
+    description="Set the gender of an existing character.",
+    func=set_character_gender,
 )
 
 get_character_translation_tool = Tool(
@@ -105,6 +131,7 @@ get_character_translation_tool = Tool(
 character_tools: List[Tool] = [
     search_character_tool,
     create_character_tool,
-    update_character_tool,
+    add_short_name_tool,
+    set_gender_tool,
     get_character_translation_tool,
 ]
