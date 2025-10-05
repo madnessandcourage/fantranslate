@@ -1,8 +1,11 @@
+import dataclasses
 import json
 from typing import List
 
 from langchain.tools import Tool
 
+from ..helpers.settings import settings
+from ..models.character import Character
 from ..models.character_collection import CharacterCollection
 
 # Global character collection
@@ -26,12 +29,22 @@ def create_character(input_str: str) -> str:
         short_names = data.get("short_names", [])
         gender = data.get("gender")
         characteristics = data.get("characteristics", [])
-        character_collection.create_character(
+        s = settings()
+        original_language = s.translate_from
+        available_languages = [s.translate_from] + s.languages
+        character = Character(
             name=name,
             short_names=short_names,
             gender=gender,
-            characteristics=characteristics,
+            original_language=original_language,
+            available_languages=available_languages,
+            characteristics=[],  # Will add later
         )
+        for char_data in characteristics:
+            character.add_characteristic(
+                char_data["sentence"], original_language, available_languages
+            )
+        character_collection.add_character(character)
         return f"Character '{name}' created successfully"
     except Exception as e:
         return f"Error creating character: {str(e)}"
@@ -65,7 +78,7 @@ def get_character_translation(input_str: str) -> str:
         language = data["language"]
         translated = character_collection.get_character_translation(name, language)
         if translated:
-            return json.dumps(translated)
+            return json.dumps(dataclasses.asdict(translated))
         else:
             return f"Character '{name}' not found"
     except Exception as e:

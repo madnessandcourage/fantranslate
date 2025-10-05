@@ -46,7 +46,7 @@ class FuzzyIndex:
             return None, None
 
         if max_distance is None:
-            max_distance = len(query) // 2
+            max_distance = 2
 
         best_match = None
         best_distance = float("inf")

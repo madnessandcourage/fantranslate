@@ -29,12 +29,15 @@ def test_character_tools():
     assert "GetCharacterTranslation" in names
 
 
+@patch("src.tools.character.settings")
 @patch("src.models.character_collection.settings")
-def test_create_character(mock_settings):
+def test_create_character(mock_collection_settings, mock_tool_settings):
     """Test creating a character."""
-    mock_settings.return_value = Settings(
+    settings_obj = Settings(
         languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
     )
+    mock_collection_settings.return_value = settings_obj
+    mock_tool_settings.return_value = settings_obj
     input_data = {
         "name": "Frodo Baggins",
         "short_names": ["Frodo"],

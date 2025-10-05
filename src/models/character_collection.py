@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from ..helpers.fuzzy import FuzzyIndex
 from ..helpers.settings import settings
-from .character import Character, Characteristic
+from .character import Character, TranslatedCharacter
 from .translation_string import TranslationString
 
 
@@ -18,10 +18,10 @@ class CharacterCollection:
         for short_name in character.short_names:
             self._name_index.add(short_name.original_text, character)
 
-    def _remove_from_index(self, character: Character):
-        # Note: FuzzyIndex doesn't have remove, so we'll rebuild index if needed
-        # For simplicity, since small collection, we can search linearly
-        pass
+    def _rebuild_index(self):
+        self._name_index = FuzzyIndex()
+        for character in self.characters:
+            self._add_to_index(character)
 
     def search(self, query: str) -> Optional[Character]:
         """Search for a character by name or short name with fuzzy matching."""
@@ -32,47 +32,15 @@ class CharacterCollection:
         _, character = self._name_index.search(query, max_distance)
         return character
 
-    def create_character(
-        self,
-        name: str,
-        short_names: Optional[List[str]] = None,
-        gender: Optional[str] = None,
-        characteristics: Optional[List[Dict[str, Any]]] = None,
-    ) -> Character:
-        """Create a new character and add to collection."""
-        s = settings()
-        original_language = s.translate_from
-        available_languages = [s.translate_from] + s.languages
-
-        name_ts = TranslationString(name, original_language, available_languages)
-        short_names_ts = [
-            TranslationString(sn, original_language, available_languages)
-            for sn in (short_names or [])
-        ]
-        gender_ts = (
-            TranslationString(gender, original_language, available_languages)
-            if gender
-            else None
-        )
-        characteristics_ts = [
-            Characteristic(
-                TranslationString(
-                    char["sentence"], original_language, available_languages
-                ),
-                char.get("confidence", 1),
-            )
-            for char in (characteristics or [])
-        ]
-
-        character = Character(
-            name=name_ts,
-            short_names=short_names_ts,
-            gender=gender_ts,
-            characteristics=characteristics_ts,
-        )
+    def add_character(self, character: Character):
+        """Add a character to the collection."""
         self.characters.append(character)
         self._add_to_index(character)
-        return character
+
+    def remove_character(self, name: str):
+        """Remove a character from the collection."""
+        self.characters = [c for c in self.characters if c.name.original_text != name]
+        self._rebuild_index()
 
     def update_character(
         self,
@@ -89,12 +57,14 @@ class CharacterCollection:
         available_languages = [s.translate_from] + s.languages
 
         # Handle updates
+        name_ts = None
         if "name" in updates:
-            character.name = TranslationString(
+            name_ts = TranslationString(
                 updates["name"], original_language, available_languages
             )
+        gender_ts = None
         if "gender" in updates:
-            character.gender = (
+            gender_ts = (
                 TranslationString(
                     updates["gender"], original_language, available_languages
                 )
@@ -102,11 +72,17 @@ class CharacterCollection:
                 else None
             )
 
+        character.update(name=name_ts, gender=gender_ts)
+
+        # Rebuild index if name changed
+        if "name" in updates:
+            self._rebuild_index()
+
         return character
 
     def get_character_translation(
         self, name: str, language: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[TranslatedCharacter]:
         """Get character information translated to the specified language."""
         character = self.search(name)
         if not character:

@@ -11,6 +11,7 @@ from src.helpers.settings import settings
 def clear_settings_cache():
     # Reset the cached settings before each test
     import src.helpers.settings
+
     src.helpers.settings.__settings = None
     yield
 
