@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import os
+
 from dotenv import load_dotenv
+
 
 def main():
     load_dotenv()
@@ -9,11 +11,13 @@ def main():
     if api_key:
         print("API key loaded successfully")
         from ai import ai
+
         joke = ai("You are a comedian.", "Tell me a funny joke not about science.")
         print(joke)
     else:
         print("Failed to load API key")
     print("Hello World")
+
 
 if __name__ == "__main__":
     main()
