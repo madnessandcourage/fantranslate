@@ -88,6 +88,9 @@ def _stable_repr(obj: Any) -> str:
     if isinstance(obj, BaseTool):
         # For BaseTool objects, use stable attributes instead of memory addresses
         return f"BaseTool(name={obj.name}, description={obj.description})"
+    elif isinstance(obj, BaseMessage):
+        # For BaseMessage, use stable representation
+        return f"{obj.__class__.__name__}(content={repr(obj.content)}, additional_kwargs={repr(obj.additional_kwargs)})"
     elif isinstance(obj, list):
         return "[" + ",".join(_stable_repr(item) for item in obj) + "]"
     else:
