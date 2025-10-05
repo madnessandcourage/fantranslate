@@ -65,11 +65,40 @@ def test_agent_basic():
     # Call agent
     response, history = agent(system_prompt, user_query, tools)
 
-    # Check that we got a response
+    # Assert that the agent used the tool and got the expected result
     assert isinstance(response, str)
-    assert len(response) > 0
+    assert "world" in response.lower()  # The tool returns "World"
     assert isinstance(history, list)
-    assert len(history) > 0
+    assert len(history) >= 2  # At least system + user + AI messages
+
+
+def test_agent_with_chat_history():
+    # Test that previous chat history influences the agent output
+    # Skip if no API key
+    if not os.getenv("OPENROUTER_API_KEY"):
+        pytest.skip("API key not set, skipping test that requires API")
+
+    from src.tools.hello import hello_tool
+
+    system_prompt = "You are a helpful assistant. Use tools when appropriate."
+    tools = [hello_tool]
+
+    # First interaction
+    user_query1 = "Who should I say hello to?"
+    response1, history1 = agent(system_prompt, user_query1, tools)
+
+    # Second interaction with previous history
+    user_query2 = "What about goodbye?"
+    previous_history = history1  # Use the history from first call
+    response2, history2 = agent(system_prompt, user_query2, tools, previous_history)
+
+    # Assert that chat history influences the response
+    assert isinstance(response1, str)
+    assert isinstance(response2, str)
+    assert "world" in response1.lower()  # First response should mention world
+    assert len(history2) > len(
+        history1
+    )  # History should grow with continued conversation
 
 
 def test_main_runs_without_error():

@@ -27,6 +27,31 @@ This document provides guidelines for AI agents and automated tools working on t
 - Never introduce code that exposes secrets or keys.
 - Follow Python best practices for security.
 
+## Testing AI Functions
+
+When writing tests for AI functions that use the `@memoise_for_tests` decorator:
+
+1. **Write incomplete tests first**: Start with a test that calls the AI function and prints the output, without assertions. This allows the AI response to be recorded.
+
+2. **Run the test**: Execute the test to generate the `.ai_recordings/` files with the AI responses.
+
+3. **Complete the test**: Once the AI output is recorded and stable, read the expected output from the recordings and add proper assertions.
+
+4. **Example pattern**:
+   ```python
+   def test_ai_function():
+       # Call the function
+       result = ai_function("input")
+
+       # During development, print to see output
+       print(f"AI output: {result}")
+
+       # After recording is stable, assert the expected output
+       assert result == "expected response"
+   ```
+
+5. **Chat history testing**: When testing functions that accept previous chat history, ensure the history actually influences the output by testing with and without history.
+
 ## Conventions
 
 - Use type hints where possible.
