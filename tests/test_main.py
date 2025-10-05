@@ -140,7 +140,9 @@ def test_yesno_max_retries_exceeded():
     """Test yesno function raises error after max retries."""
     with patch("src.ai.ai") as mock_ai:
         mock_ai.return_value = "Invalid response"
-        with pytest.raises(ValueError, match="AI failed to provide a valid YES/NO response"):
+        with pytest.raises(
+            ValueError, match="AI failed to provide a valid YES/NO response"
+        ):
             yesno("Is water wet?", max_retries=2)
         assert mock_ai.call_count == 2
 
