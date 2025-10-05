@@ -28,17 +28,25 @@ def memoise_for_tests(func: Callable[..., Any]) -> Callable[..., Any]:
 
         data: Dict[str, Any] = {}
         if os.path.exists(filename):
-            with open(filename, "r") as f:
-                data = json.load(f)
+            try:
+                with open(filename, "r") as f:
+                    data = json.load(f)
+            except (json.JSONDecodeError, ValueError):
+                # If file is corrupted, start fresh
+                data = {}
 
         if key in data:
             return data[key]
 
         result = func(*args, **kwargs)
 
-        data[key] = result
-        with open(filename, "w") as f:
-            json.dump(data, f, indent=2)
+        try:
+            data[key] = result
+            with open(filename, "w") as f:
+                json.dump(data, f, indent=2)
+        except (TypeError, ValueError):
+            # If result is not JSON serializable, skip caching
+            pass
 
         return result
 
