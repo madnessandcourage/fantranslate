@@ -3,7 +3,7 @@ import hashlib
 import json
 import os
 import sys
-from typing import Any, Callable
+from typing import Any, Callable, Dict
 
 
 def is_test_mode() -> bool:
@@ -26,7 +26,7 @@ def memoise_for_tests(func: Callable[..., Any]) -> Callable[..., Any]:
         filename = f".ai_recordings/{func.__name__}.json"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-        data = {}
+        data: Dict[str, Any] = {}
         if os.path.exists(filename):
             with open(filename, "r") as f:
                 data = json.load(f)

@@ -4,9 +4,9 @@ This document provides guidelines for AI agents and automated tools working on t
 
 ## Code Quality
 
-- **Linting**: Run `black src/` and `isort src/` after any code changes to format code.
-- **Type Checking**: Run `pyright` to check types after changes.
-- **Testing**: Always write tests for new code. Always run tests before finishing a task. Use pytest for testing.
+- **Linting**: Run `./script/lint` after any code changes to format code and check types.
+- **Testing**: Always write tests for new code. Run `./script/test` before finishing a task to ensure tests pass. Use pytest for testing.
+- **CI Verification**: You MUST run `./script/lint` and `./script/test` and ensure they both pass before finishing the task.
 
 ## Project Structure
 

@@ -13,6 +13,7 @@ def test_ai_memoisation():
 
     # Clear existing recordings for this test
     import shutil
+
     if os.path.exists(".ai_recordings"):
         shutil.rmtree(".ai_recordings")
 
