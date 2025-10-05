@@ -28,6 +28,10 @@ def main():
         default=0,
         help="Increase verbosity (use -v for debug, -vv for trace)",
     )
+    parser.add_argument(
+        "--agent",
+        help="Run a specific agent (e.g., demo_agent)",
+    )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
@@ -100,7 +104,9 @@ def main():
         load_dotenv()
     api_key = os.getenv("OPENROUTER_API_KEY")
 
-    if args.command == "character":
+    if args.agent:
+        handle_agent_command(args.agent, api_key)
+    elif args.command == "character":
         handle_character_command(args, api_key)
     elif args.command == "demo":
         handle_demo(api_key)
@@ -179,6 +185,27 @@ def handle_demo(api_key: Optional[str]) -> None:
     print(f"Translated: {translated}")
 
     log_info("Demo completed")
+
+
+def handle_agent_command(agent_name: str, api_key: Optional[str]) -> None:
+    if not api_key:
+        log_error("API key required for agent operations")
+        return
+
+    if agent_name == "demo_agent":
+        from ai import agent
+        from tools.hello import hello_tool
+
+        log_info("Running demo agent")
+        output, _ = agent(
+            system_prompt="You are a helpful assistant that can use tools to greet people.",
+            user_query="Who should I say hello to?",
+            tools=[hello_tool],
+        )
+        print(output)
+        log_info("Demo agent completed")
+    else:
+        log_error(f"Unknown agent: {agent_name}")
 
 
 if __name__ == "__main__":
