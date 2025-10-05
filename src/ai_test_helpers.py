@@ -90,7 +90,7 @@ def _stable_repr(obj: Any) -> str:
         return f"BaseTool(name={obj.name}, description={obj.description})"
     elif isinstance(obj, BaseMessage):
         # For BaseMessage, use stable representation
-        return f"{obj.__class__.__name__}(content={repr(obj.content)}, additional_kwargs={repr(obj.additional_kwargs)})"
+        return f"{obj.__class__.__name__}(content={repr(obj.content)}, additional_kwargs={repr(obj.additional_kwargs)})"  # type: ignore[reportUnknownMemberType,reportUnknownArgumentType]
     elif isinstance(obj, list):
         return "[" + ",".join(_stable_repr(item) for item in obj) + "]"
     else:
@@ -120,7 +120,6 @@ def memoise_for_tests(func: Callable[..., Any]) -> Callable[..., Any]:
                 # If file is corrupted, fall back to normal execution
                 pass
 
-        print(f"key in data: {key in data}, data keys: {list(data.keys())}")
         if key in data:
             stored_result = data[key]
             # Convert back from serializable form if needed

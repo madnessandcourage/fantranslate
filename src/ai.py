@@ -7,11 +7,11 @@ from dotenv import load_dotenv
 
 # Only load .env in non-test environments
 if not (
-    os.getenv("PYTEST_CURRENT_TEST") or
-    os.getenv("CI") or
-    os.getenv("GITHUB_ACTIONS") or
-    any("pytest" in arg for arg in sys.argv) or
-    any("test" in arg.lower() for arg in sys.argv)
+    os.getenv("PYTEST_CURRENT_TEST")
+    or os.getenv("CI")
+    or os.getenv("GITHUB_ACTIONS")
+    or any("pytest" in arg for arg in sys.argv)
+    or any("test" in arg.lower() for arg in sys.argv)
 ):
     load_dotenv()
 
@@ -40,13 +40,15 @@ from tracing import (
 
 # Only load .env in non-test environments
 test_env = (
-    os.getenv("PYTEST_CURRENT_TEST") or
-    os.getenv("CI") or
-    os.getenv("GITHUB_ACTIONS") or
-    any("pytest" in arg for arg in sys.argv) or
-    any("test" in arg.lower() for arg in sys.argv)
+    os.getenv("PYTEST_CURRENT_TEST")
+    or os.getenv("CI")
+    or os.getenv("GITHUB_ACTIONS")
+    or any("pytest" in arg for arg in sys.argv)
+    or any("test" in arg.lower() for arg in sys.argv)
 )
-print(f"DEBUG: ai.py test_env detected: {test_env}, PYTEST_CURRENT_TEST: {os.getenv('PYTEST_CURRENT_TEST')}, CI: {os.getenv('CI')}, GITHUB_ACTIONS: {os.getenv('GITHUB_ACTIONS')}, argv: {sys.argv}")
+print(
+    f"DEBUG: ai.py test_env detected: {test_env}, PYTEST_CURRENT_TEST: {os.getenv('PYTEST_CURRENT_TEST')}, CI: {os.getenv('CI')}, GITHUB_ACTIONS: {os.getenv('GITHUB_ACTIONS')}, argv: {sys.argv}"
+)
 print(f"DEBUG: ai.py OPENROUTER_API_KEY before: {os.getenv('OPENROUTER_API_KEY')}")
 if not test_env:
     load_dotenv()

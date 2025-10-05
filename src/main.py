@@ -45,11 +45,11 @@ def main():
 
     # Only load .env in non-test environments
     if not (
-        os.getenv("PYTEST_CURRENT_TEST") or
-        os.getenv("CI") or
-        os.getenv("GITHUB_ACTIONS") or
-        any("pytest" in arg for arg in sys.argv) or
-        any("test" in arg.lower() for arg in sys.argv)
+        os.getenv("PYTEST_CURRENT_TEST")
+        or os.getenv("CI")
+        or os.getenv("GITHUB_ACTIONS")
+        or any("pytest" in arg for arg in sys.argv)
+        or any("test" in arg.lower() for arg in sys.argv)
     ):
         load_dotenv()
     api_key = os.getenv("OPENROUTER_API_KEY")
