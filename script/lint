@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Activate virtual environment
+source venv/bin/activate
+
+# Run formatters and linters
+black src/ tests/
+isort src/ tests/
+
+# Run type checker
+pyright
