@@ -5,6 +5,13 @@ from typing import Any, List, Optional, Tuple, cast
 
 from dotenv import load_dotenv
 
+# Always load .env
+load_dotenv()
+
+# If in no API key mode, unset the key
+if os.getenv("NO_API_KEY_MODE"):
+    os.environ.pop("OPENROUTER_API_KEY", None)
+
 # pyright: ignore[reportUnknownVariableType] # langchain type stubs are incomplete
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain.memory import ConversationBufferMemory
@@ -27,8 +34,6 @@ from tracing import (
     log_llm_system,
     log_trace,
 )
-
-load_dotenv()
 
 DEFAULT_MODEL: str = os.getenv("DEFAULT_AI_MODEL", "openai/gpt-4o-mini")
 
