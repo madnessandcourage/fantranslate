@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # Create virtual environment if it doesn't exist
 if [ ! -d "venv" ]; then
