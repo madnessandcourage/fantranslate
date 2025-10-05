@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.ai import agent, ai
+from src.ai import agent, ai, yesno
 
 
 def test_ai_memoisation():
@@ -105,3 +105,50 @@ def test_main_runs_without_error():
         main()
     except Exception as e:
         pytest.fail(f"main() raised an exception: {e}")
+
+
+def test_yesno_yes_response():
+    """Test yesno function with YES response."""
+    with patch("src.ai.ai") as mock_ai:
+        mock_ai.return_value = "YES"
+        result, reason = yesno("Is 2 + 2 = 4?")
+        assert result is True
+        assert reason == ""
+
+
+def test_yesno_no_response():
+    """Test yesno function with NO response."""
+    with patch("src.ai.ai") as mock_ai:
+        mock_ai.return_value = "NO, because 2 + 2 = 5"
+        result, reason = yesno("Is 2 + 2 = 5?")
+        assert result is False
+        assert reason == "because 2 + 2 = 5"
+
+
+def test_yesno_retry_on_invalid():
+    """Test yesno function retries on invalid response."""
+    with patch("src.ai.ai") as mock_ai:
+        # First two calls return invalid responses, third returns valid
+        mock_ai.side_effect = ["Maybe", "I think YES", "YES"]
+        result, reason = yesno("Is the sky blue?")
+        assert result is True
+        assert reason == ""
+        assert mock_ai.call_count == 3
+
+
+def test_yesno_max_retries_exceeded():
+    """Test yesno function raises error after max retries."""
+    with patch("src.ai.ai") as mock_ai:
+        mock_ai.return_value = "Invalid response"
+        with pytest.raises(ValueError, match="AI failed to provide a valid YES/NO response"):
+            yesno("Is water wet?", max_retries=2)
+        assert mock_ai.call_count == 2
+
+
+def test_yesno_none_response():
+    """Test yesno function handles None response from ai."""
+    with patch("src.ai.ai") as mock_ai:
+        mock_ai.side_effect = [None, None, "YES"]
+        result, reason = yesno("Is fire hot?")
+        assert result is True
+        assert reason == ""
