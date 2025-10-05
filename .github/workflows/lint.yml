@@ -19,11 +19,12 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
         pip install black isort pyright
+        ./script/setup
 
     - name: Run lint
       run: |
+        source venv/bin/activate
         black src/
         isort src/
         pyright
