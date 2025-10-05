@@ -1,5 +1,7 @@
 from typing import Any, Dict, List, Optional
 
+import yaml
+
 from ..helpers.fuzzy import FuzzyIndex
 from ..helpers.settings import settings  # type: ignore
 from .character import Character, TranslatedCharacter
@@ -61,3 +63,16 @@ class CharacterCollection:
             collection.characters.append(character)
             collection._add_to_index(character)
         return collection
+
+    @classmethod
+    def from_file(cls, file_path: str) -> "CharacterCollection":
+        """Load a character collection from a YAML file."""
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        return cls.from_dict(data)
+
+    def save(self, file_path: str):
+        """Save the character collection to a YAML file."""
+        data = self.to_dict()
+        with open(file_path, "w", encoding="utf-8") as f:
+            yaml.dump(data, f, allow_unicode=True, sort_keys=False)
