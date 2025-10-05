@@ -19,6 +19,12 @@ def is_test_mode() -> bool:
     # Check if we're running in a test environment
     if os.getenv("CI") or os.getenv("GITHUB_ACTIONS"):
         return True
+    # Check for common test environment variables
+    if os.getenv("PYTEST_VERSION") or os.getenv("TESTING"):
+        return True
+    # Check if running from test files
+    if any("test" in arg.lower() for arg in sys.argv):
+        return True
     return False
 
 
