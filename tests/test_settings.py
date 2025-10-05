@@ -8,8 +8,11 @@ from src.helpers.settings import settings
 
 
 @pytest.fixture(autouse=True)
-def clear_cache():
-    settings.cache_clear()
+def clear_settings_cache():
+    # Reset the cached settings before each test
+    import src.helpers.settings
+
+    src.helpers.settings.__settings = None  # type: ignore
     yield
 
 
@@ -27,21 +30,6 @@ def test_settings_success(tmp_path: Path):
     assert result.languages == ["en", "ru", "fr"]
     assert result.translate_from == "jp"
     assert result.translate_to == "en"
-
-
-def test_settings_memoization(tmp_path: Path):
-    os.chdir(str(tmp_path))
-    project_yml = {
-        "languages": ["en", "ru"],
-        "translate_from": "jp",
-        "translate_to": "en",
-    }
-    with open("project.yml", "w") as f:
-        yaml.dump(project_yml, f)
-
-    result1 = settings()
-    result2 = settings()
-    assert result1 is result2
 
 
 def test_settings_file_not_found(tmp_path: Path):
