@@ -51,6 +51,7 @@ def ai(
     return response.choices[0].message.content
 
 
+@memoise_for_tests
 def agent(
     system_prompt: str,
     user_query: str,

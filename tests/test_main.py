@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.ai import ai
+from src.ai import agent, ai
 
 
 def test_ai_memoisation():
@@ -47,6 +47,29 @@ def test_ai_memoisation():
             data = json.load(f)
         assert len(data) == 1
         # The key should be the hash of "system:user:model=model"
+
+
+def test_agent_basic():
+    # Test that the agent function works
+    # Skip if no API key
+    if not os.getenv("OPENROUTER_API_KEY"):
+        pytest.skip("API key not set, skipping test that requires API")
+
+    from src.tools.hello import hello_tool
+
+    # Test the agent with the hello tool
+    system_prompt = "You are a helpful assistant. Use tools when appropriate."
+    user_query = "Who should I say hello to?"
+    tools = [hello_tool]
+
+    # Call agent
+    response, history = agent(system_prompt, user_query, tools)
+
+    # Check that we got a response
+    assert isinstance(response, str)
+    assert len(response) > 0
+    assert isinstance(history, list)
+    assert len(history) > 0
 
 
 def test_main_runs_without_error():
