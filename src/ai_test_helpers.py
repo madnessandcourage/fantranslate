@@ -120,6 +120,7 @@ def memoise_for_tests(func: Callable[..., Any]) -> Callable[..., Any]:
                 # If file is corrupted, fall back to normal execution
                 pass
 
+        print(f"key in data: {key in data}, data keys: {list(data.keys())}")
         if key in data:
             stored_result = data[key]
             # Convert back from serializable form if needed
