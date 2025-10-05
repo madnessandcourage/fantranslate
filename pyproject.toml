@@ -14,7 +14,10 @@ dependencies = [
     "openai",
     "black",
     "isort",
-    "pyright"
+    "pyright",
+    "langchain",
+    "langchain-community",
+    "langchain-openai"
 ]
 readme = "README.md"
 

@@ -1,9 +1,15 @@
 import os
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional, Tuple
 
 from dotenv import load_dotenv
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain.memory import ConversationBufferMemory
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.schema import BaseMessage
+from langchain.tools import BaseTool
+from langchain_openai import ChatOpenAI
 from openai import OpenAI
 
 # Add src to path for imports
@@ -43,3 +49,59 @@ def ai(
         ],
     )
     return response.choices[0].message.content
+
+
+def agent(
+    system_prompt: str,
+    user_query: str,
+    tools: List[BaseTool],
+    previous_chat_history: Optional[List[BaseMessage]] = None,
+    model: str = DEFAULT_MODEL,
+) -> Tuple[str, List[BaseMessage]]:
+    previous_chat_history = previous_chat_history or []
+
+    # Create LLM
+    llm = ChatOpenAI(
+        openai_api_key=os.getenv("OPENROUTER_API_KEY"),
+        openai_api_base="https://openrouter.ai/api/v1",
+        model_name=model,
+        temperature=0,
+    )
+
+    # Create prompt template
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", system_prompt),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("human", "{input}"),
+            MessagesPlaceholder(variable_name="agent_scratchpad"),
+        ]
+    )
+
+    # Create memory
+    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    for msg in previous_chat_history:
+        memory.chat_memory.add_message(msg)
+
+    # Create agent
+    agent = create_openai_tools_agent(llm, tools, prompt)
+
+    # Create agent executor
+    agent_executor = AgentExecutor(
+        agent=agent,
+        tools=tools,
+        memory=memory,
+        verbose=False,
+        handle_parsing_errors=True,
+    )
+
+    # Run the agent
+    response = agent_executor.invoke({"input": user_query})
+
+    # Get the output
+    output = response["output"]
+
+    # Get updated chat history
+    chat_history = memory.chat_memory.messages
+
+    return output, chat_history
