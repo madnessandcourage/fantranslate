@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 from dotenv import load_dotenv
-from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain.agents import AgentExecutor, create_openai_tools_agent  # type: ignore[import]
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema import BaseMessage
@@ -62,7 +62,7 @@ def agent(
     previous_chat_history = previous_chat_history or []
 
     # Create LLM
-    llm = ChatOpenAI(
+    llm = ChatOpenAI(  # type: ignore[call-arg]
         openai_api_key=os.getenv("OPENROUTER_API_KEY"),
         openai_api_base="https://openrouter.ai/api/v1",
         model_name=model,
@@ -70,7 +70,7 @@ def agent(
     )
 
     # Create prompt template
-    prompt = ChatPromptTemplate.from_messages(
+    prompt = ChatPromptTemplate.from_messages(  # type: ignore[attr-defined]
         [
             ("system", system_prompt),
             MessagesPlaceholder(variable_name="chat_history"),
@@ -85,7 +85,7 @@ def agent(
         memory.chat_memory.add_message(msg)
 
     # Create agent
-    agent = create_openai_tools_agent(llm, tools, prompt)
+    agent = create_openai_tools_agent(llm, tools, prompt)  # type: ignore[return-value]
 
     # Create agent executor
     agent_executor = AgentExecutor(

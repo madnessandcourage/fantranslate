@@ -69,7 +69,7 @@ def test_agent_basic():
     assert isinstance(response, str)
     assert "world" in response.lower()  # The tool returns "World"
     assert isinstance(history, list)
-    assert len(history) >= 2  # At least system + user + AI messages
+    assert len(history) >= 2  # type: ignore[arg-type] # At least system + user + AI messages
 
 
 def test_agent_with_chat_history():
@@ -96,7 +96,7 @@ def test_agent_with_chat_history():
     assert isinstance(response1, str)
     assert isinstance(response2, str)
     assert "world" in response1.lower()  # First response should mention world
-    assert len(history2) > len(
+    assert len(history2) > len(  # type: ignore[arg-type]
         history1
     )  # History should grow with continued conversation
 
