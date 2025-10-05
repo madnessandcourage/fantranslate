@@ -14,6 +14,7 @@ This document provides guidelines for AI agents and automated tools working on t
 - Use `pyproject.toml` for project configuration, including dependencies and tool settings.
 - Dependencies are listed in `pyproject.toml`.
 - The main entry point is `src/main.py`, exposed as the `fantranslate` binary.
+- AI test recordings are stored in `.ai_recordings/` and should be committed to the repository for reliable testing.
 
 ## Development Workflow
 
