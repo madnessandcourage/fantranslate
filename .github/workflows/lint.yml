@@ -11,9 +11,5 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install dependencies
       run: ./script/setup
-     - name: Run lint
-       run: |
-         source venv/bin/activate
-         black src/ tests/
-         isort src/ tests/
-         pyright
+    - name: Run lint
+      run: ./script/lint
