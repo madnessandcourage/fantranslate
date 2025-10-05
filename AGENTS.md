@@ -4,7 +4,7 @@ This document provides guidelines for AI agents and automated tools working on t
 
 ## Code Quality
 
-- **Linting**: Run `./script/lint` after any code changes to format code and check types.
+- **Linting**: Run `./script/lint` after any code changes to format code and check types. Linting MUST ALWAYS pass with 0 errors, 0 warnings, 0 informations.
 - **Testing**: Always write tests for new code. Run `./script/test` before finishing a task to ensure tests pass. Use pytest for testing.
 - **CI Verification**: You MUST run `./script/lint` and `./script/test` and ensure they both pass before finishing the task.
 

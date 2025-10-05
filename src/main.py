@@ -113,7 +113,7 @@ def handle_character_command(args: argparse.Namespace, api_key: Optional[str]) -
         log_error("API key required for character operations")
         return
 
-    from fantranslate.tools.character import (
+    from fantranslate.tools.character import (  # type: ignore
         create_character,
         search_character,
         update_character,
@@ -147,7 +147,7 @@ def handle_demo(api_key: Optional[str]) -> None:
 
     log_info("Running character management demo")
 
-    from fantranslate.tools.character import (
+    from fantranslate.tools.character import (  # type: ignore
         create_character,
         get_character_translation,
         search_character,

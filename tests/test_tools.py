@@ -1,5 +1,5 @@
 import json
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from src.helpers.settings import Settings
 from src.tools.character import (
@@ -31,7 +31,9 @@ def test_character_tools():
 
 @patch("src.models.character.settings")
 @patch("src.models.character_collection.settings")
-def test_create_character(mock_collection_settings, mock_character_settings):
+def test_create_character(
+    mock_collection_settings: MagicMock, mock_character_settings: MagicMock
+) -> None:
     """Test creating a character."""
     settings_obj = Settings(
         languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
@@ -50,7 +52,9 @@ def test_create_character(mock_collection_settings, mock_character_settings):
 
 @patch("src.models.character.settings")
 @patch("src.models.character_collection.settings")
-def test_search_character(mock_collection_settings, mock_character_settings):
+def test_search_character(
+    mock_collection_settings: MagicMock, mock_character_settings: MagicMock
+) -> None:
     """Test searching for a character."""
     settings_obj = Settings(
         languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
@@ -71,7 +75,9 @@ def test_search_character(mock_collection_settings, mock_character_settings):
 
 @patch("src.models.character.settings")
 @patch("src.models.character_collection.settings")
-def test_update_character(mock_collection_settings, mock_character_settings):
+def test_update_character(
+    mock_collection_settings: MagicMock, mock_character_settings: MagicMock
+) -> None:
     """Test updating a character."""
     settings_obj = Settings(
         languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
@@ -93,7 +99,9 @@ def test_update_character(mock_collection_settings, mock_character_settings):
 
 @patch("src.models.character.settings")
 @patch("src.models.character_collection.settings")
-def test_get_character_translation(mock_collection_settings, mock_character_settings):
+def test_get_character_translation(
+    mock_collection_settings: MagicMock, mock_character_settings: MagicMock
+) -> None:
     """Test getting character translation."""
     settings_obj = Settings(
         languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
