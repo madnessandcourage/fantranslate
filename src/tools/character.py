@@ -38,14 +38,16 @@ def create_character(input_str: str) -> str:
 
 
 def update_character(input_str: str) -> str:
-    """Update an existing character. Input: JSON with name (to identify), updates dict. WARNING: Editing name is dangerous."""
+    """Update an existing character. Input: JSON with name (to identify), updates dict (only name and gender allowed). WARNING: Editing name is dangerous."""
     try:
         data = json.loads(input_str)
         name = data["name"]
         updates = data["updates"]
+        # Filter updates to only allow name and gender
+        allowed_updates = {k: v for k, v in updates.items() if k in ["name", "gender"]}
         character = character_collection.update_character(
             name=name,
-            updates=updates,
+            updates=allowed_updates,
         )
         if character:
             return f"Character '{name}' updated successfully"
@@ -84,7 +86,7 @@ create_character_tool = Tool(
 
 update_character_tool = Tool(
     name="UpdateCharacter",
-    description="Update information of an existing character. Be careful with editing the name.",
+    description="Update name or gender of an existing character. Be careful with editing the name.",
     func=update_character,
 )
 

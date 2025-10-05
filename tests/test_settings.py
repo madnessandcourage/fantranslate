@@ -7,6 +7,14 @@ import yaml
 from src.helpers.settings import settings
 
 
+@pytest.fixture(autouse=True)
+def clear_settings_cache():
+    # Reset the cached settings before each test
+    import src.helpers.settings
+    src.helpers.settings.__settings = None
+    yield
+
+
 def test_settings_success(tmp_path: Path):
     os.chdir(str(tmp_path))
     project_yml = {

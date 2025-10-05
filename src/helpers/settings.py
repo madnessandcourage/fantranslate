@@ -12,7 +12,14 @@ class Settings:
     translate_to: str
 
 
+__settings = None
+
+
 def settings() -> Settings:
+    global __settings
+    if __settings is not None:
+        return __settings
+
     project_file = os.path.join(os.getcwd(), "project.yml")
     if not os.path.exists(project_file):
         raise FileNotFoundError(f"project.yml not found in {os.getcwd()}")
@@ -46,8 +53,9 @@ def settings() -> Settings:
     if translate_to not in languages:
         raise ValueError("'translate_to' must be in 'languages'")
 
-    return Settings(
+    __settings = Settings(
         languages=cast(List[str], languages),
         translate_from=translate_from,
         translate_to=translate_to,
     )
+    return __settings

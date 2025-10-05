@@ -29,10 +29,12 @@ def test_character_tools():
     assert "GetCharacterTranslation" in names
 
 
-@patch('src.models.character_collection.settings')
+@patch("src.models.character_collection.settings")
 def test_create_character(mock_settings):
     """Test creating a character."""
-    mock_settings.return_value = Settings(languages=['en', 'ru', 'fr'], translate_from='jp', translate_to='en')
+    mock_settings.return_value = Settings(
+        languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
+    )
     input_data = {
         "name": "Frodo Baggins",
         "short_names": ["Frodo"],
@@ -43,27 +45,33 @@ def test_create_character(mock_settings):
     assert "created successfully" in result
 
 
-@patch('src.models.character_collection.settings')
+@patch("src.models.character_collection.settings")
 def test_search_character(mock_settings):
     """Test searching for a character."""
-    mock_settings.return_value = Settings(languages=['en', 'ru', 'fr'], translate_from='jp', translate_to='en')
+    mock_settings.return_value = Settings(
+        languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
+    )
     result = search_character("Frodo")
     assert "Frodo Baggins" in result
 
 
-@patch('src.models.character_collection.settings')
+@patch("src.models.character_collection.settings")
 def test_update_character(mock_settings):
     """Test updating a character."""
-    mock_settings.return_value = Settings(languages=['en', 'ru', 'fr'], translate_from='jp', translate_to='en')
+    mock_settings.return_value = Settings(
+        languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
+    )
     input_data = {"name": "Frodo", "updates": {"gender": "male"}}
     result = update_character(json.dumps(input_data))
     assert "updated successfully" in result
 
 
-@patch('src.models.character_collection.settings')
+@patch("src.models.character_collection.settings")
 def test_get_character_translation(mock_settings):
     """Test getting character translation."""
-    mock_settings.return_value = Settings(languages=['en', 'ru', 'fr'], translate_from='jp', translate_to='en')
+    mock_settings.return_value = Settings(
+        languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
+    )
     input_data = {"name": "Frodo", "language": "es"}
     result = get_character_translation(json.dumps(input_data))
     # Since no translations added, should return original

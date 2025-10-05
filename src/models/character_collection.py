@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from ..helpers.fuzzy import FuzzyIndex
 from ..helpers.settings import settings
-from .character import Character
+from .character import Character, Characteristic
 from .translation_string import TranslationString
 
 
@@ -55,12 +55,12 @@ class CharacterCollection:
             else None
         )
         characteristics_ts = [
-            {
-                "sentence": TranslationString(
+            Characteristic(
+                TranslationString(
                     char["sentence"], original_language, available_languages
                 ),
-                "confidence": char.get("confidence", 1),
-            }
+                char.get("confidence", 1),
+            )
             for char in (characteristics or [])
         ]
 
@@ -93,11 +93,6 @@ class CharacterCollection:
             character.name = TranslationString(
                 updates["name"], original_language, available_languages
             )
-        if "short_names" in updates:
-            character.short_names = [
-                TranslationString(sn, original_language, available_languages)
-                for sn in updates["short_names"]
-            ]
         if "gender" in updates:
             character.gender = (
                 TranslationString(
@@ -106,16 +101,6 @@ class CharacterCollection:
                 if updates["gender"]
                 else None
             )
-        if "characteristics" in updates:
-            character.characteristics = [
-                {
-                    "sentence": TranslationString(
-                        char["sentence"], original_language, available_languages
-                    ),
-                    "confidence": char.get("confidence", 1),
-                }
-                for char in updates["characteristics"]
-            ]
 
         return character
 
