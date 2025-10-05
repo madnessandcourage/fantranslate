@@ -4,7 +4,8 @@ from pathlib import Path
 from typing import Any, List, Optional, Tuple, cast
 
 from dotenv import load_dotenv
-# type: ignore # langchain type stubs are incomplete
+
+# pyright: ignore[reportUnknownVariableType] # langchain type stubs are incomplete
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder

@@ -62,6 +62,7 @@ pythonVersion = "3.8"
 typeCheckingMode = "strict"
 reportMissingImports = true
 reportMissingTypeStubs = false
+reportUnknownVariableType = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
