@@ -23,7 +23,7 @@ where = ["src"]
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py38']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -52,7 +52,7 @@ ensure_newline_before_comments = true
 [tool.pyright]
 include = ["src"]
 exclude = ["**/__pycache__", "**/.git", "**/node_modules"]
-pythonVersion = "3.10"
+pythonVersion = "3.8"
 typeCheckingMode = "strict"
 reportMissingImports = true
 reportMissingTypeStubs = false
