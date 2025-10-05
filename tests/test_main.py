@@ -11,6 +11,11 @@ def test_ai_memoisation():
     # Test that memoise_for_tests works in test mode
     # We'll mock the openai client to return a fixed response
 
+    # Clear existing recordings for this test
+    import shutil
+    if os.path.exists(".ai_recordings"):
+        shutil.rmtree(".ai_recordings")
+
     with patch("src.ai.client") as mock_client:
         mock_response = type(
             "MockResponse",
@@ -32,11 +37,11 @@ def test_ai_memoisation():
         mock_client.chat.completions.create.return_value = mock_response
 
         # Call ai with specific args
-        result1 = ai("system", "user", "model")
+        result1 = ai("test_system", "test_user", "test_model")
         assert result1 == "Mocked AI response"
 
         # Call again with same args, should return from cache
-        result2 = ai("system", "user", "model")
+        result2 = ai("test_system", "test_user", "test_model")
         assert result2 == "Mocked AI response"
 
         # Check that the API was called only once
