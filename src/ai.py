@@ -26,8 +26,10 @@ from openai import OpenAI
 sys.path.insert(0, str(Path(__file__).parent))
 
 from ai_test_helpers import memoise_for_tests
+from helpers.context import Context
 from tracing import (
     log_enter,
+    log_error,
     log_exit,
     log_llm_ai,
     log_llm_operator,
@@ -142,3 +144,70 @@ def agent(
 
     log_exit("agent")
     return output, chat_history
+
+
+def yesno(
+    user_prompt: str, model: Optional[str] = None, max_retries: int = 3
+) -> Tuple[bool, str]:
+    log_enter("yesno")
+
+    # Build system prompt using ContextManager
+    context = Context()
+    context = context.add(
+        "Instructions",
+        "You are a judge that answers YES or NO questions. Your response must be exactly one of these formats:\n"
+        "- YES (if the answer is yes)\n"
+        "- NO, <brief reason> (if the answer is no)\n\n"
+        "Do not add any prefixes, explanations, or additional text. Respond with a single line only.",
+    )
+
+    # Add good examples
+    context = context.example(in_="Is Paris the capital of France?", out="YES")
+    context = context.example(
+        in_="Is London the capital of Germany?",
+        out="NO, Berlin is the capital of Germany",
+    )
+    context = context.example(in_="Is 2 + 2 = 4?", out="YES")
+    context = context.example(in_="Is the sky green?", out="NO, the sky is blue")
+
+    # Add bad examples
+    context = context.failure_example(
+        in_="Is Tokyo the capital of Japan?", err="Based on my knowledge, YES"
+    )
+    context = context.failure_example(
+        in_="Is Rome the capital of Italy?", err="YES\nRome is indeed the capital."
+    )
+    context = context.failure_example(
+        in_="Is Madrid the capital of Spain?",
+        err="The answer is YES because Madrid is the capital city.",
+    )
+
+    system_prompt = context.build()
+
+    for attempt in range(max_retries):
+        log_trace("Attempt", str(attempt + 1))
+        response = ai(system_prompt, user_prompt, model)
+
+        if response is None:
+            continue
+
+        response = response.strip()
+
+        if response == "YES":
+            log_exit("yesno")
+            return True, ""
+
+        if response.startswith("NO, "):
+            reason = response[4:].strip()  # Remove "NO, " prefix
+            log_exit("yesno")
+            return False, reason
+
+        # Invalid response, retry
+        log_trace("Invalid response", response)
+
+    # All retries failed
+    log_error(f"Failed to get valid YES/NO response after {max_retries} attempts")
+    log_exit("yesno")
+    raise ValueError(
+        f"AI failed to provide a valid YES/NO response after {max_retries} attempts"
+    )
