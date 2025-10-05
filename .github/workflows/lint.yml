@@ -15,11 +15,11 @@ jobs:
        with:
          python-version: '3.13.7'
 
-     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install black isort pyright
-        ./script/setup
+      - name: Install dependencies
+       run: |
+         python3 -m pip install --upgrade pip
+         pip install black isort pyright
+         ./script/setup
 
     - name: Run lint
       run: |
