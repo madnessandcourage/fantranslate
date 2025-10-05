@@ -121,7 +121,7 @@ def agent(
         agent=agent,
         tools=tools,
         memory=memory,
-        verbose=False,
+        verbose=False,  # We use our custom tracing framework instead
         handle_parsing_errors=True,
     )
 

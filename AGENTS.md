@@ -62,6 +62,77 @@ When writing tests for AI functions that use the `@memoise_for_tests` decorator:
 - When using type ignores, add a comment explaining why: `# type: ignore[error-code] # explanation`
 - Prefer fixing the root cause (correct imports, type annotations, etc.) over ignoring
 
+## Tracing and Debugging
+
+This codebase includes a comprehensive tracing framework for debugging and monitoring code execution, especially LLM interactions.
+
+### Tracing Functions
+
+Use the following functions from `src/tracing.py` to add tracing throughout the codebase:
+
+```python
+from tracing import (
+    log_enter, log_exit, log_info, log_trace,
+    log_llm_system, log_llm_operator, log_llm_ai, log_llm_tool, log_error
+)
+
+# Function entry/exit with automatic indentation
+log_enter("function_name")
+# ... function code ...
+log_exit("function_name")
+
+# General logging
+log_info("Informational message")
+log_trace("key", "value")  # Only shown in trace mode
+log_error("Error message")
+
+# LLM-specific logging (automatically trims to 100 words)
+log_llm_system("System prompt")
+log_llm_operator("User query")
+log_llm_ai("AI response")
+log_llm_tool("tool_name", "arg1", "arg2")  # Tool usage
+```
+
+### Debug Levels
+
+Control tracing verbosity via command line arguments:
+
+- **Normal** (default): Only `log_error` messages
+- **Debug** (`-v`): All messages except `log_trace`
+- **Trace** (`-vv`): All messages including `log_trace`
+
+### Usage Examples
+
+```bash
+# Normal mode - errors only
+./script/fantranslate
+
+# Debug mode - function calls, LLM interactions
+./script/fantranslate -v
+
+# Trace mode - includes trace messages
+./script/fantranslate -vv
+```
+
+### Integration Guidelines
+
+- Always use `log_enter`/`log_exit` for function boundaries
+- Use LLM-specific functions for all AI interactions
+- Use `log_trace` for detailed debugging information
+- Use `log_info` for important state changes
+- Use `log_error` for error conditions
+
+### AgentExecutor Logging
+
+The `AgentExecutor` in `src/ai.py` has `verbose=False` by default. Our custom tracing framework provides more comprehensive and controlled logging than LangChain's built-in verbose mode, which would output unstructured text to stdout. We prefer our structured tracing system for the following reasons:
+
+- **Structured output**: Our tracing goes to stderr with proper indentation and prefixes
+- **Level control**: Different verbosity levels (normal, debug, trace)
+- **LLM-specific handling**: Automatic trimming of long responses to 100 words
+- **Consistency**: Uniform logging format across the entire codebase
+
+If LangChain's verbose mode is ever needed for debugging specific LangChain issues, the `verbose` parameter can be temporarily set to `True`, but our custom tracing should be used for all production logging.
+
 ## Conventions
 
 - Use type hints where possible.
