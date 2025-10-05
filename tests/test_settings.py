@@ -66,7 +66,10 @@ def test_settings_missing_translate_from(tmp_path: Path):
     with open("project.yml", "w") as f:
         yaml.dump(project_yml, f)
 
-    with pytest.raises(ValueError, match="must contain 'languages', 'translate_from', and 'translate_to'"):
+    with pytest.raises(
+        ValueError,
+        match="must contain 'languages', 'translate_from', and 'translate_to'",
+    ):
         settings()
 
 
@@ -76,7 +79,10 @@ def test_settings_missing_translate_to(tmp_path: Path):
     with open("project.yml", "w") as f:
         yaml.dump(project_yml, f)
 
-    with pytest.raises(ValueError, match="must contain 'languages', 'translate_from', and 'translate_to'"):
+    with pytest.raises(
+        ValueError,
+        match="must contain 'languages', 'translate_from', and 'translate_to'",
+    ):
         settings()
 
 

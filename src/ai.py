@@ -19,6 +19,14 @@ from openai import OpenAI
 sys.path.insert(0, str(Path(__file__).parent))
 
 from ai_test_helpers import memoise_for_tests
+from tracing import (
+    log_enter,
+    log_exit,
+    log_llm_ai,
+    log_llm_operator,
+    log_llm_system,
+    log_trace,
+)
 
 load_dotenv()
 
@@ -41,9 +49,13 @@ def get_client():
 def ai(
     system_prompt: str, user_prompt: str, model: Optional[str] = None
 ) -> Optional[str]:
+    log_enter("ai")
     if model is None:
         model = DEFAULT_MODEL
+    log_trace("Model", model)
     client = get_client()
+    log_llm_system(system_prompt)
+    log_llm_operator(user_prompt)
     response = client.chat.completions.create(
         model=model,
         messages=[
@@ -51,7 +63,11 @@ def ai(
             {"role": "user", "content": user_prompt},
         ],
     )
-    return response.choices[0].message.content
+    result = response.choices[0].message.content
+    if result:
+        log_llm_ai(result)
+    log_exit("ai")
+    return result
 
 
 @memoise_for_tests
@@ -62,7 +78,12 @@ def agent(
     previous_chat_history: Optional[List[BaseMessage]] = None,
     model: str = DEFAULT_MODEL,
 ) -> Tuple[str, List[BaseMessage]]:
+    log_enter("agent")
     previous_chat_history = previous_chat_history or []
+
+    log_llm_system(system_prompt)
+    log_llm_operator(user_query)
+    log_trace("Model", model)
 
     # Create LLM
     # Set environment variables for OpenAI configuration
@@ -100,7 +121,7 @@ def agent(
         agent=agent,
         tools=tools,
         memory=memory,
-        verbose=False,
+        verbose=False,  # We use our custom tracing framework instead
         handle_parsing_errors=True,
     )
 
@@ -109,8 +130,10 @@ def agent(
 
     # Get the output
     output = response["output"]
+    log_llm_ai(output)
 
     # Get updated chat history
     chat_history = memory.chat_memory.messages
 
+    log_exit("agent")
     return output, chat_history
