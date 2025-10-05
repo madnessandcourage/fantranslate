@@ -12,7 +12,7 @@ This document provides guidelines for AI agents and automated tools working on t
 
 - Source code goes in `src/`.
 - Use `pyproject.toml` for project configuration, including dependencies and tool settings.
-- Dependencies are listed in `requirements.txt`.
+- Dependencies are listed in `pyproject.toml`.
 - The main entry point is `src/main.py`, exposed as the `fantranslate` binary.
 
 ## Development Workflow
