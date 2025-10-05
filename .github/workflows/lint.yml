@@ -7,20 +7,16 @@ on:
 jobs:
   lint:
     runs-on: self-hosted
-
     steps:
     - uses: actions/checkout@v4
-
     - uses: actions/setup-python@v4
       with:
         python-version: '3.13.7'
-
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
         pip install black isort pyright
         ./script/setup
-
     - name: Run lint
       run: |
         source venv/bin/activate
