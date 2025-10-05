@@ -1,25 +1,7 @@
-#!/bin/bash
-
-# Parse command line arguments
-while getopts "e" opt; do
-    case $opt in
-        e)
-            INSTALL_EDITABLE=true
-            ;;
-        *)
-            echo "Usage: $0 [-e]"
-            exit 1
-            ;;
-    esac
-done
+#!/bin/bash -e
 
 # Activate virtual environment
 source venv/bin/activate
-
-# Install in editable mode if -e flag is provided
-if [ "$INSTALL_EDITABLE" = true ]; then
-    pip install -e .
-fi
 
 # Run tests
 pytest
