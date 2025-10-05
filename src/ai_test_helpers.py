@@ -10,22 +10,7 @@ from langchain.tools import BaseTool
 
 
 def is_test_mode() -> bool:
-    # Check for pytest environment variables
-    if os.getenv("PYTEST_CURRENT_TEST") is not None:
-        return True
-    # Check if pytest is in the command line
-    if any("pytest" in arg for arg in sys.argv):
-        return True
-    # Check if we're running in a test environment
-    if os.getenv("CI") or os.getenv("GITHUB_ACTIONS"):
-        return True
-    # Check for common test environment variables
-    if os.getenv("PYTEST_VERSION") or os.getenv("TESTING"):
-        return True
-    # Check if running from test files
-    if any("test" in arg.lower() for arg in sys.argv):
-        return True
-    return False
+    return os.getenv("PYTEST_CURRENT_TEST") is not None or "pytest" in sys.argv[0]
 
 
 def _make_serializable(obj: Any) -> Any:
@@ -33,8 +18,8 @@ def _make_serializable(obj: Any) -> Any:
     if isinstance(obj, BaseMessage):
         return {
             "type": obj.__class__.__name__,
-            "content": obj.content,  # type: ignore
-            "additional_kwargs": obj.additional_kwargs,  # type: ignore
+            "content": obj.content,  # type: ignore[reportUnknownMemberType]
+            "additional_kwargs": obj.additional_kwargs,  # type: ignore[reportUnknownMemberType]
         }
     elif isinstance(obj, list):
         return [_make_serializable(item) for item in obj]
@@ -51,8 +36,8 @@ def _json_encoder(obj: Any) -> Any:
     if isinstance(obj, BaseMessage):
         return {
             "type": obj.__class__.__name__,
-            "content": obj.content,  # type: ignore
-            "additional_kwargs": obj.additional_kwargs,  # type: ignore
+            "content": obj.content,  # type: ignore[reportUnknownMemberType]
+            "additional_kwargs": obj.additional_kwargs,  # type: ignore[reportUnknownMemberType]
         }
     raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
