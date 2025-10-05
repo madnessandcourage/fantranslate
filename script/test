@@ -3,5 +3,15 @@
 # Activate virtual environment
 source venv/bin/activate
 
+# Check for --without-api-key flag
+if [ "$1" = "--without-api-key" ]; then
+    echo "Running tests without API key (using recordings only)..."
+    # Unset the API key environment variable to ensure it's not available
+    unset OPENROUTER_API_KEY
+    # Note: .env moving was removed as it was causing issues with recordings
+else
+    echo "Running tests with API key (will record if needed)..."
+fi
+
 # Run tests
 pytest
