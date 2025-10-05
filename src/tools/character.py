@@ -4,7 +4,6 @@ from typing import List
 
 from langchain.tools import Tool
 
-from ..helpers.settings import settings
 from ..models.character import Character
 from ..models.character_collection import CharacterCollection
 
@@ -29,21 +28,15 @@ def create_character(input_str: str) -> str:
         short_names = data.get("short_names", [])
         gender = data.get("gender")
         characteristics = data.get("characteristics", [])
-        s = settings()
-        original_language = s.translate_from
-        available_languages = [s.translate_from] + s.languages
+
         character = Character(
             name=name,
             short_names=short_names,
             gender=gender,
-            original_language=original_language,
-            available_languages=available_languages,
             characteristics=[],  # Will add later
         )
         for char_data in characteristics:
-            character.add_characteristic(
-                char_data["sentence"], original_language, available_languages
-            )
+            character.add_characteristic(char_data["sentence"])
         character_collection.add_character(character)
         return f"Character '{name}' created successfully"
     except Exception as e:

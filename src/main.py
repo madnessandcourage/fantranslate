@@ -113,7 +113,11 @@ def handle_character_command(args: argparse.Namespace, api_key: Optional[str]) -
         log_error("API key required for character operations")
         return
 
-    from fantranslate.tools.character import create_character, search_character, update_character
+    from fantranslate.tools.character import (
+        create_character,
+        search_character,
+        update_character,
+    )
 
     if args.char_command == "create":
         data = {"name": args.name, "gender": args.gender}

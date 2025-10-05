@@ -29,15 +29,15 @@ def test_character_tools():
     assert "GetCharacterTranslation" in names
 
 
-@patch("src.tools.character.settings")
+@patch("src.models.character.settings")
 @patch("src.models.character_collection.settings")
-def test_create_character(mock_collection_settings, mock_tool_settings):
+def test_create_character(mock_collection_settings, mock_character_settings):
     """Test creating a character."""
     settings_obj = Settings(
         languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
     )
     mock_collection_settings.return_value = settings_obj
-    mock_tool_settings.return_value = settings_obj
+    mock_character_settings.return_value = settings_obj
     input_data = {
         "name": "Frodo Baggins",
         "short_names": ["Frodo"],
@@ -48,34 +48,67 @@ def test_create_character(mock_collection_settings, mock_tool_settings):
     assert "created successfully" in result
 
 
+@patch("src.models.character.settings")
 @patch("src.models.character_collection.settings")
-def test_search_character(mock_settings):
+def test_search_character(mock_collection_settings, mock_character_settings):
     """Test searching for a character."""
-    mock_settings.return_value = Settings(
+    settings_obj = Settings(
         languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
     )
+    mock_collection_settings.return_value = settings_obj
+    mock_character_settings.return_value = settings_obj
+    # Create character first
+    input_data = {
+        "name": "Frodo Baggins",
+        "short_names": ["Frodo"],
+        "gender": "male",
+        "characteristics": [],
+    }
+    create_character(json.dumps(input_data))
     result = search_character("Frodo")
     assert "Frodo Baggins" in result
 
 
+@patch("src.models.character.settings")
 @patch("src.models.character_collection.settings")
-def test_update_character(mock_settings):
+def test_update_character(mock_collection_settings, mock_character_settings):
     """Test updating a character."""
-    mock_settings.return_value = Settings(
+    settings_obj = Settings(
         languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
     )
-    input_data = {"name": "Frodo", "updates": {"gender": "male"}}
-    result = update_character(json.dumps(input_data))
+    mock_collection_settings.return_value = settings_obj
+    mock_character_settings.return_value = settings_obj
+    # Create character first
+    input_data = {
+        "name": "Frodo Baggins",
+        "short_names": ["Frodo"],
+        "gender": "male",
+        "characteristics": [],
+    }
+    create_character(json.dumps(input_data))
+    update_data = {"name": "Frodo", "updates": {"gender": "male"}}
+    result = update_character(json.dumps(update_data))
     assert "updated successfully" in result
 
 
+@patch("src.models.character.settings")
 @patch("src.models.character_collection.settings")
-def test_get_character_translation(mock_settings):
+def test_get_character_translation(mock_collection_settings, mock_character_settings):
     """Test getting character translation."""
-    mock_settings.return_value = Settings(
+    settings_obj = Settings(
         languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
     )
-    input_data = {"name": "Frodo", "language": "es"}
-    result = get_character_translation(json.dumps(input_data))
+    mock_collection_settings.return_value = settings_obj
+    mock_character_settings.return_value = settings_obj
+    # Create character first
+    input_data = {
+        "name": "Frodo Baggins",
+        "short_names": ["Frodo"],
+        "gender": "male",
+        "characteristics": [],
+    }
+    create_character(json.dumps(input_data))
+    trans_data = {"name": "Frodo", "language": "es"}
+    result = get_character_translation(json.dumps(trans_data))
     # Since no translations added, should return original
     assert "Frodo Baggins" in result
