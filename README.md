@@ -21,7 +21,7 @@ This will print "Hello World".
 ### Setup
 
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 
 ### Linting

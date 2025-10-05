@@ -6,13 +6,13 @@ This document provides guidelines for AI agents and automated tools working on t
 
 - **Linting**: Run `black src/` and `isort src/` after any code changes to format code.
 - **Type Checking**: Run `pyright` to check types after changes.
-- **Testing**: Run tests if available (check for pytest or similar in pyproject.toml).
+- **Testing**: Always write tests for new code. Always run tests before finishing a task. Use pytest for testing.
 
 ## Project Structure
 
 - Source code goes in `src/`.
 - Use `pyproject.toml` for project configuration, including dependencies and tool settings.
-- Dependencies are listed in `requirements.txt`.
+- Dependencies are listed in `pyproject.toml`.
 - The main entry point is `src/main.py`, exposed as the `fantranslate` binary.
 
 ## Development Workflow
