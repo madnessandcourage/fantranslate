@@ -3,5 +3,14 @@
 # Activate virtual environment
 source venv/bin/activate
 
+# Check for --without-api-key flag
+if [ "$1" = "--without-api-key" ]; then
+    echo "Running tests without API key (using recordings only)..."
+    # Set no API key mode
+    export NO_API_KEY_MODE=1
+else
+    echo "Running tests with API key (will record if needed)..."
+fi
+
 # Run tests
 pytest
