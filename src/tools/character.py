@@ -1,21 +1,18 @@
-import dataclasses
 import json
 from typing import List
 
 from langchain.tools import Tool
 
 from ..helpers.settings import settings
-from ..models.character import Character
+from ..models.character import Character, TranslatedCharacter
 from ..models.character_collection import CharacterCollection
 
 # Global character collection
 character_collection = CharacterCollection()
 
 
-def _character_to_xml(character: Character) -> str:
+def _character_to_xml(translated: TranslatedCharacter) -> str:
     """Convert TranslatedCharacter to XML for AI."""
-    s = settings()
-    translated = character.get_translated(s.translate_from)
     xml_parts = ["<character>"]
     xml_parts.append(f"<name>{translated.name}</name>")
     xml_parts.append("<short_names>")
@@ -39,12 +36,14 @@ def search_character(query: str) -> str:
     """Search for a character by name or short name. Input: search query string."""
     character = character_collection.search(query)
     if character:
-        return _character_to_xml(character)
+        s = settings()
+        translated = character.get_translated(s.translate_from)
+        return _character_to_xml(translated)
     else:
         return "Character not found"
 
 
-def create_character(name: str, gender: str = "other") -> str:
+def create_character(name: str, gender: str = "UNKNOWN") -> str:
     """Create a new character. Input: name (required), gender (optional, default 'other')."""
     try:
         character = Character(
@@ -91,7 +90,7 @@ def get_character_translation(input_str: str) -> str:
         language = data["language"]
         translated = character_collection.get_character_translation(name, language)
         if translated:
-            return json.dumps(dataclasses.asdict(translated))
+            return _character_to_xml(translated)
         else:
             return f"Character '{name}' not found"
     except Exception as e:

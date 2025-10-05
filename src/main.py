@@ -165,8 +165,7 @@ def handle_demo(api_key: Optional[str]) -> None:
     )
 
     # Create a character
-    data = {"name": "Frodo Baggins", "gender": "male"}
-    result = create_character(json.dumps(data))
+    result = create_character("Frodo Baggins", "male")
     print(f"Created: {result}")
 
     # Search for it
@@ -174,8 +173,9 @@ def handle_demo(api_key: Optional[str]) -> None:
     print(f"Search results: {results}")
 
     # Get translation (assuming English to Spanish)
-    trans_data = {"name": "Frodo Baggins", "language": "es"}
-    translated = get_character_translation(json.dumps(trans_data))
+    translated = get_character_translation(
+        json.dumps({"name": "Frodo Baggins", "language": "es"})
+    )
     print(f"Translated: {translated}")
 
     log_info("Demo completed")
