@@ -1,6 +1,3 @@
-languages:
-  - en
-  - ru
-  - fr
+languages: ["en", "ru", "fr"]
 translate_from: jp
 translate_to: en

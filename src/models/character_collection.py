@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional
 
-from ..helpers.fuzzy import FuzzyIndex, levenshtein_distance
+from ..helpers.fuzzy import FuzzyIndex
+from ..helpers.settings import settings
 from .character import Character
 from .translation_string import TranslationString
 
@@ -27,42 +28,22 @@ class CharacterCollection:
         if not query:
             return None
 
-        best_match = None
-        best_distance = float("inf")
-
-        for character in self.characters:
-            # Check full name
-            distance = levenshtein_distance(
-                query.lower(), character.name.original_text.lower()
-            )
-            max_dist = 1 if len(query) <= 4 else 2
-            if distance <= max_dist and distance < best_distance:
-                best_distance = distance
-                best_match = character
-
-            # Check short names
-            for short_name in character.short_names:
-                distance = levenshtein_distance(
-                    query.lower(), short_name.original_text.lower()
-                )
-                max_dist = 1 if len(query) <= 4 else 2
-                if distance <= max_dist and distance < best_distance:
-                    best_distance = distance
-                    best_match = character
-
-        return best_match
+        max_distance = 1 if len(query) <= 4 else 2
+        _, character = self._name_index.search(query, max_distance)
+        return character
 
     def create_character(
         self,
         name: str,
-        original_language: str,
-        available_languages: List[str],
         short_names: Optional[List[str]] = None,
         gender: Optional[str] = None,
-        biography: Optional[str] = None,
         characteristics: Optional[List[Dict[str, Any]]] = None,
     ) -> Character:
         """Create a new character and add to collection."""
+        s = settings()
+        original_language = s.translate_from
+        available_languages = [s.translate_from] + s.languages
+
         name_ts = TranslationString(name, original_language, available_languages)
         short_names_ts = [
             TranslationString(sn, original_language, available_languages)
@@ -71,11 +52,6 @@ class CharacterCollection:
         gender_ts = (
             TranslationString(gender, original_language, available_languages)
             if gender
-            else None
-        )
-        biography_ts = (
-            TranslationString(biography, original_language, available_languages)
-            if biography
             else None
         )
         characteristics_ts = [
@@ -92,7 +68,6 @@ class CharacterCollection:
             name=name_ts,
             short_names=short_names_ts,
             gender=gender_ts,
-            biography=biography_ts,
             characteristics=characteristics_ts,
         )
         self.characters.append(character)
@@ -103,13 +78,15 @@ class CharacterCollection:
         self,
         name: str,
         updates: Dict[str, Any],
-        original_language: str,
-        available_languages: List[str],
     ) -> Optional[Character]:
         """Update an existing character."""
         character = self.search(name)
         if not character:
             return None
+
+        s = settings()
+        original_language = s.translate_from
+        available_languages = [s.translate_from] + s.languages
 
         # Handle updates
         if "name" in updates:
@@ -127,14 +104,6 @@ class CharacterCollection:
                     updates["gender"], original_language, available_languages
                 )
                 if updates["gender"]
-                else None
-            )
-        if "biography" in updates:
-            character.biography = (
-                TranslationString(
-                    updates["biography"], original_language, available_languages
-                )
-                if updates["biography"]
                 else None
             )
         if "characteristics" in updates:

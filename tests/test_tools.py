@@ -1,7 +1,13 @@
 import json
 
+from src.tools.character import (
+    character_tools,
+    create_character,
+    get_character_translation,
+    search_character,
+    update_character,
+)
 from src.tools.hello import hello_tool
-from src.tools.character import character_tools, search_character, create_character, update_character, get_character_translation
 
 
 def test_hello_tool():
@@ -25,12 +31,9 @@ def test_create_character():
     """Test creating a character."""
     input_data = {
         "name": "Frodo Baggins",
-        "original_language": "en",
-        "available_languages": ["en", "es"],
         "short_names": ["Frodo"],
         "gender": "male",
-        "biography": "A hobbit from the Shire.",
-        "characteristics": [{"sentence": "Brave and loyal.", "confidence": 1}]
+        "characteristics": [{"sentence": "Brave and loyal.", "confidence": 1}],
     }
     result = create_character(json.dumps(input_data))
     assert "created successfully" in result
@@ -44,12 +47,7 @@ def test_search_character():
 
 def test_update_character():
     """Test updating a character."""
-    input_data = {
-        "name": "Frodo",
-        "updates": {"biography": "A brave hobbit."},
-        "original_language": "en",
-        "available_languages": ["en", "es"]
-    }
+    input_data = {"name": "Frodo", "updates": {"gender": "male"}}
     result = update_character(json.dumps(input_data))
     assert "updated successfully" in result
 

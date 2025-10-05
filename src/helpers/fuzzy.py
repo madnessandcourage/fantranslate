@@ -30,8 +30,14 @@ class FuzzyIndex:
         """Add a term and its associated object to the index."""
         self._data[term] = obj
 
-    def search(self, query: str) -> Tuple[Optional[str], Optional[Any]]:
+    def search(
+        self, query: str, max_distance: Optional[int] = None
+    ) -> Tuple[Optional[str], Optional[Any]]:
         """Search for the closest matching term in the index.
+
+        Args:
+            query: The search query
+            max_distance: Maximum allowed edit distance. If None, defaults to len(query) // 2
 
         Returns (term, object) if a match is found within acceptable distance,
         otherwise (None, None).
@@ -39,14 +45,15 @@ class FuzzyIndex:
         if not query:
             return None, None
 
+        if max_distance is None:
+            max_distance = len(query) // 2
+
         best_match = None
         best_distance = float("inf")
         best_term = None
 
         for term in self._data:
             distance = levenshtein_distance(query.lower(), term.lower())
-            # Accept matches where distance is less than 50% of query length
-            max_distance = len(query) // 2
             if distance <= max_distance and distance < best_distance:
                 best_distance = distance
                 best_match = self._data[term]

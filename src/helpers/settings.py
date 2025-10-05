@@ -1,6 +1,5 @@
 import os
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import Any, Dict, List, cast
 
 import yaml
@@ -13,7 +12,6 @@ class Settings:
     translate_to: str
 
 
-@lru_cache(maxsize=1)
 def settings() -> Settings:
     project_file = os.path.join(os.getcwd(), "project.yml")
     if not os.path.exists(project_file):

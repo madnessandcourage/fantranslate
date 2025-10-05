@@ -55,6 +55,7 @@ When writing tests for AI functions that use the `@memoise_for_tests` decorator:
 ## Type Checking
 
 - Use type hints where possible and strive for full type coverage.
+- **Don't type anything as `Any` until this is a last resort.** Prefer specific types like `Union`, `Optional`, or custom types.
 - **Type ignores should only be used as a last resort** when:
   - Third-party libraries have incomplete or incorrect type stubs
   - Complex generic types cannot be properly expressed
@@ -138,3 +139,5 @@ If LangChain's verbose mode is ever needed for debugging specific LangChain issu
 - Use type hints where possible.
 - Follow PEP 8 style, enforced by black and isort.
 - Keep functions and modules focused and small.
+- Use `to_dict` / `from_dict` methods for serialization of objects.
+- `original_language` and `available_languages` should ALWAYS be read from settings, not passed as arguments.

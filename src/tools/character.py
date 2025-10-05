@@ -19,23 +19,17 @@ def search_character(query: str) -> str:
 
 
 def create_character(input_str: str) -> str:
-    """Create a new character. Input: JSON with name (required), short_names, gender, biography, characteristics, original_language, available_languages."""
+    """Create a new character. Input: JSON with name (required), short_names, gender, characteristics."""
     try:
         data = json.loads(input_str)
         name = data["name"]
-        original_language = data["original_language"]
-        available_languages = data["available_languages"]
         short_names = data.get("short_names", [])
         gender = data.get("gender")
-        biography = data.get("biography")
         characteristics = data.get("characteristics", [])
         character_collection.create_character(
             name=name,
-            original_language=original_language,
-            available_languages=available_languages,
             short_names=short_names,
             gender=gender,
-            biography=biography,
             characteristics=characteristics,
         )
         return f"Character '{name}' created successfully"
@@ -44,18 +38,14 @@ def create_character(input_str: str) -> str:
 
 
 def update_character(input_str: str) -> str:
-    """Update an existing character. Input: JSON with name (to identify), updates dict, original_language, available_languages. WARNING: Editing name is dangerous."""
+    """Update an existing character. Input: JSON with name (to identify), updates dict. WARNING: Editing name is dangerous."""
     try:
         data = json.loads(input_str)
         name = data["name"]
         updates = data["updates"]
-        original_language = data["original_language"]
-        available_languages = data["available_languages"]
         character = character_collection.update_character(
             name=name,
             updates=updates,
-            original_language=original_language,
-            available_languages=available_languages,
         )
         if character:
             return f"Character '{name}' updated successfully"
