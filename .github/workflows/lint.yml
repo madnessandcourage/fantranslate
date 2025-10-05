@@ -9,15 +9,13 @@ jobs:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v4
-    - name: Cache pip dependencies
+    - name: Cache virtual environment
       uses: actions/cache@v4
       with:
-        path: |
-          ~/.cache/pip
-          venv
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+        path: venv
+        key: ${{ runner.os }}-venv-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
-          ${{ runner.os }}-pip-
+          ${{ runner.os }}-venv-
     - name: Install dependencies
       run: ./script/setup
     - name: Run lint
