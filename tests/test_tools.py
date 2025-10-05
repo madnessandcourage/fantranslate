@@ -1,5 +1,7 @@
 import json
+from unittest.mock import patch
 
+from src.helpers.settings import Settings
 from src.tools.character import (
     character_tools,
     create_character,
@@ -27,8 +29,10 @@ def test_character_tools():
     assert "GetCharacterTranslation" in names
 
 
-def test_create_character():
+@patch('src.models.character_collection.settings')
+def test_create_character(mock_settings):
     """Test creating a character."""
+    mock_settings.return_value = Settings(languages=['en', 'ru', 'fr'], translate_from='jp', translate_to='en')
     input_data = {
         "name": "Frodo Baggins",
         "short_names": ["Frodo"],
@@ -39,21 +43,27 @@ def test_create_character():
     assert "created successfully" in result
 
 
-def test_search_character():
+@patch('src.models.character_collection.settings')
+def test_search_character(mock_settings):
     """Test searching for a character."""
+    mock_settings.return_value = Settings(languages=['en', 'ru', 'fr'], translate_from='jp', translate_to='en')
     result = search_character("Frodo")
     assert "Frodo Baggins" in result
 
 
-def test_update_character():
+@patch('src.models.character_collection.settings')
+def test_update_character(mock_settings):
     """Test updating a character."""
+    mock_settings.return_value = Settings(languages=['en', 'ru', 'fr'], translate_from='jp', translate_to='en')
     input_data = {"name": "Frodo", "updates": {"gender": "male"}}
     result = update_character(json.dumps(input_data))
     assert "updated successfully" in result
 
 
-def test_get_character_translation():
+@patch('src.models.character_collection.settings')
+def test_get_character_translation(mock_settings):
     """Test getting character translation."""
+    mock_settings.return_value = Settings(languages=['en', 'ru', 'fr'], translate_from='jp', translate_to='en')
     input_data = {"name": "Frodo", "language": "es"}
     result = get_character_translation(json.dumps(input_data))
     # Since no translations added, should return original
