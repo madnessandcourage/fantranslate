@@ -1,14 +1,16 @@
 import os
 import sys
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, cast
 
 from dotenv import load_dotenv
-from langchain.agents import AgentExecutor, create_openai_tools_agent  # type: ignore[import]
+# type: ignore # langchain type stubs are incomplete
+from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema import BaseMessage
 from langchain.tools import BaseTool
+from langchain_core.language_models import BaseLanguageModel
 from langchain_openai import ChatOpenAI
 from openai import OpenAI
 
@@ -62,11 +64,16 @@ def agent(
     previous_chat_history = previous_chat_history or []
 
     # Create LLM
-    llm = ChatOpenAI(  # type: ignore[call-arg]
-        openai_api_key=os.getenv("OPENROUTER_API_KEY"),
-        openai_api_base="https://openrouter.ai/api/v1",
-        model_name=model,
-        temperature=0,
+    # Set environment variables for OpenAI configuration
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPENROUTER_API_KEY", "")
+    os.environ["OPENAI_API_BASE"] = "https://openrouter.ai/api/v1"
+
+    llm = cast(
+        BaseLanguageModel[Any],
+        ChatOpenAI(
+            model=model,
+            temperature=0,
+        ),
     )
 
     # Create prompt template
@@ -85,7 +92,7 @@ def agent(
         memory.chat_memory.add_message(msg)
 
     # Create agent
-    agent = create_openai_tools_agent(llm, tools, prompt)  # type: ignore[return-value]
+    agent = create_openai_tools_agent(llm, tools, prompt)  # type: ignore[return-value,assignment] # langchain type stubs don't fully resolve generic types
 
     # Create agent executor
     agent_executor = AgentExecutor(
