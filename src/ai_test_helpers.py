@@ -25,9 +25,6 @@ def is_test_mode() -> bool:
     # Check if running from test files
     if any("test" in arg.lower() for arg in sys.argv):
         return True
-    # Fallback: if AI recordings exist, assume we're in test mode
-    if os.path.exists(".ai_recordings"):
-        return True
     return False
 
 
