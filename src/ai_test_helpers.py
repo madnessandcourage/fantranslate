@@ -10,7 +10,16 @@ from langchain.tools import BaseTool
 
 
 def is_test_mode() -> bool:
-    return os.getenv("PYTEST_CURRENT_TEST") is not None or "pytest" in sys.argv[0]
+    # Check for pytest environment variables
+    if os.getenv("PYTEST_CURRENT_TEST") is not None:
+        return True
+    # Check if pytest is in the command line
+    if any("pytest" in arg for arg in sys.argv):
+        return True
+    # Check if we're running in a test environment
+    if os.getenv("CI") or os.getenv("GITHUB_ACTIONS"):
+        return True
+    return False
 
 
 def _make_serializable(obj: Any) -> Any:
