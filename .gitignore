@@ -118,6 +118,9 @@ dmypy.json
 .idea/
 .swp
 
+# Data files
+characters.yml
+
 # Playground files
 playground/*.yml
 playground/*.json
