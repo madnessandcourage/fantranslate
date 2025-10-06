@@ -6,6 +6,7 @@ from tools.character import (
     add_character_short_name,
     character_tools,
     create_character,
+    get_all_characters,
     get_character_translation,
     search_character,
     set_character_gender,
@@ -22,13 +23,14 @@ def test_hello_tool():
 
 def test_character_tools():
     """Test that character tools are defined."""
-    assert len(character_tools) == 5
+    assert len(character_tools) == 6
     names = [tool.name for tool in character_tools]
     assert "SearchCharacter" in names
     assert "CreateCharacter" in names
     assert "AddCharacterShortName" in names
     assert "SetCharacterGender" in names
     assert "GetCharacterTranslation" in names
+    assert "GetAllCharacters" in names
 
 
 @patch("models.character.settings")
@@ -123,3 +125,30 @@ def test_get_character_translation(
     result = get_character_translation(json.dumps(trans_data))
     # Since no translations added, should return original
     assert "Frodo Baggins" in result
+
+
+@patch("tools.character.settings")
+@patch("models.character.settings")
+@patch("models.character_collection.settings")
+def test_get_all_characters(
+    mock_tools_settings: MagicMock,
+    mock_character_settings: MagicMock,
+    mock_collection_settings: MagicMock,
+) -> None:
+    """Test getting all characters."""
+    settings_obj = Settings(
+        languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
+    )
+    mock_collection_settings.return_value = settings_obj
+    mock_character_settings.return_value = settings_obj
+    mock_tools_settings.return_value = settings_obj
+    # Create characters first
+    create_character("Frodo Baggins", "male")
+    create_character("Gandalf", "male")
+    result = get_all_characters()
+    assert "<characters>" in result
+    assert "<character>" in result
+    assert "Frodo Baggins" in result
+    assert "Gandalf" in result
+    # Should not contain characteristics
+    assert "<characteristics>" not in result

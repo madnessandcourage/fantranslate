@@ -73,6 +73,9 @@ def main():
         "gender", choices=["male", "female", "other"], help="Gender"
     )
 
+    # List all characters
+    char_subparsers.add_parser("list", help="List all characters")
+
     # Demo workflow
     subparsers.add_parser("demo", help="Run character management demo")
 
@@ -139,6 +142,7 @@ def handle_character_command(args: argparse.Namespace, api_key: Optional[str]) -
     from tools.character import (  # type: ignore
         add_character_short_name,
         create_character,
+        get_all_characters,
         search_character,
         set_character_gender,
     )
@@ -155,6 +159,9 @@ def handle_character_command(args: argparse.Namespace, api_key: Optional[str]) -
     elif args.char_command == "set_gender":
         result = set_character_gender(args.name, args.gender)
         print(f"Set gender: {result}")
+    elif args.char_command == "list":
+        result = get_all_characters()
+        print(result)
 
 
 def handle_demo(api_key: Optional[str]) -> None:

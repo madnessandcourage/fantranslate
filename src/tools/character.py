@@ -97,6 +97,27 @@ def get_character_translation(input_str: str) -> str:
         return f"Error getting translation: {str(e)}"
 
 
+def get_all_characters() -> str:
+    """Get all characters in the system. Returns XML with name, short_names, and gender only."""
+    s = settings()
+    characters = character_collection.get_all_characters(s.translate_from)
+
+    xml_parts = ["<characters>"]
+    for char in characters:
+        xml_parts.append("<character>")
+        xml_parts.append(f"<name>{char.name}</name>")
+        xml_parts.append("<short_names>")
+        for sn in char.short_names:
+            xml_parts.append(f"<short_name>{sn}</short_name>")
+        xml_parts.append("</short_names>")
+        if char.gender:
+            xml_parts.append(f"<gender>{char.gender}</gender>")
+        xml_parts.append("</character>")
+    xml_parts.append("</characters>")
+
+    return "".join(xml_parts)
+
+
 search_character_tool = Tool(
     name="SearchCharacter",
     description="Search for an existing character by name or short name using fuzzy matching.",
@@ -127,10 +148,17 @@ get_character_translation_tool = Tool(
     func=get_character_translation,
 )
 
+get_all_characters_tool = Tool(
+    name="GetAllCharacters",
+    description="Get a list of all characters in the system with their names, short names, and genders.",
+    func=get_all_characters,
+)
+
 character_tools: List[Tool] = [
     search_character_tool,
     create_character_tool,
     add_short_name_tool,
     set_gender_tool,
     get_character_translation_tool,
+    get_all_characters_tool,
 ]

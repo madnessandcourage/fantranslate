@@ -4,6 +4,7 @@ import yaml
 
 from helpers.fuzzy import FuzzyIndex
 from helpers.settings import settings  # type: ignore
+
 from .character import Character, TranslatedCharacter
 
 
@@ -51,6 +52,10 @@ class CharacterCollection:
         if not character:
             return None
         return character.get_translated(language)
+
+    def get_all_characters(self, language: str) -> List[TranslatedCharacter]:
+        """Get all characters translated to the specified language."""
+        return [char.get_translated(language) for char in self.characters]
 
     def to_dict(self) -> List[Dict[str, Any]]:
         return [char.to_dict() for char in self.characters]

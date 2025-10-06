@@ -98,3 +98,21 @@ def test_from_file_classmethod():
 
     finally:
         os.unlink(temp_file)
+
+
+def test_get_all_characters():
+    collection = CharacterCollection()
+    char1 = Character("Alice", short_names=["Al"], gender="female")
+    char2 = Character("Bob", gender="male")
+    collection.add_character(char1)
+    collection.add_character(char2)
+
+    all_characters = collection.get_all_characters("en")
+
+    assert len(all_characters) == 2
+    assert all_characters[0].name == "Alice"
+    assert all_characters[0].short_names == ["Al"]
+    assert all_characters[0].gender == "female"
+    assert all_characters[1].name == "Bob"
+    assert all_characters[1].short_names == []
+    assert all_characters[1].gender == "male"
