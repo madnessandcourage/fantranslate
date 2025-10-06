@@ -30,6 +30,12 @@ class Context:
         new_parts = self.parts + [{"type": "pipe", "content": content}]
         return Context(new_parts)
 
+    def has_examples(self) -> bool:
+        """Check if the context already contains examples."""
+        return any(
+            part["type"] in ["good_example", "bad_example"] for part in self.parts
+        )
+
     def build(self) -> str:
         main_parts: List[Dict[str, str]] = []
         examples: List[Dict[str, str]] = []
