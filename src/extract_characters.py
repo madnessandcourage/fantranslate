@@ -1,11 +1,27 @@
 import json
-from typing import List
+from typing import List, Tuple
 
 from ai import agent, ai, yesno
 from helpers.context import Context
 from models.character_collection import CharacterCollection
-from tools.character import character_tools
+from tools.character import (
+    add_short_name_tool,
+    character_collection,
+    create_character_tool,
+    get_all_characters_tool,
+    search_character_tool,
+    set_gender_tool,
+)
 from tracing import log_enter, log_error, log_exit, log_info
+
+# Tools needed for character extraction
+extraction_tools = [
+    search_character_tool,
+    create_character_tool,
+    add_short_name_tool,
+    set_gender_tool,
+    get_all_characters_tool,
+]
 
 
 def detection_judge(
@@ -22,21 +38,24 @@ def detection_judge(
     """
     log_enter("detection_judge")
 
-    # Get all existing character names and short names
-    existing_names = set()
+    # Build existing characters display with grouped names
+    existing_chars_display = []
     for char in existing_characters.characters:
-        existing_names.add(char.name.original_text)
-        for short_name in char.short_names:
-            existing_names.add(short_name.original_text)
+        full_name = char.name.original_text
+        short_names = [sn.original_text for sn in char.short_names]
+        if short_names:
+            display = f"- {full_name} (a.k.a {', '.join(short_names)})"
+        else:
+            display = f"- {full_name}"
+        existing_chars_display.append(display)
 
     # Build the prompt using Context
-    existing_names_list = sorted(list(existing_names))
     context = (
         Context()
         .add(
             "Existing Characters",
-            "The following character names and short names are already in the collection:\n"
-            + "\n".join(f"- {name}" for name in existing_names_list),
+            "The following characters are already in the collection:\n"
+            + "\n".join(existing_chars_display),
         )
         .add("Chapter Text", chapter_text)
         .add(
@@ -58,9 +77,7 @@ def detection_judge(
     )
 
     system_prompt = context.build()
-    user_prompt = (
-        f"Chapter text:\n{chapter_text}\n\nExisting characters: {existing_names_list}"
-    )
+    user_prompt = f"Chapter text:\n{chapter_text}"
 
     # Call AI
     response = ai(system_prompt, user_prompt)
@@ -97,7 +114,9 @@ def detection_judge(
         return []
 
 
-def extraction_agent(missing_characters: List[str], chapter_text: str) -> str:
+def extraction_agent(
+    missing_characters: List[str], chapter_text: str
+) -> Tuple[str, List[str]]:
     """Extract missing characters from a chapter using AI agent with character tools.
 
     Args:
@@ -109,6 +128,10 @@ def extraction_agent(missing_characters: List[str], chapter_text: str) -> str:
     """
     log_enter("extraction_agent")
 
+    # Read the extraction agent prompt from file
+    with open("prompts/extraction_agent.md", "r", encoding="utf-8") as f:
+        prompt_content = f.read()
+
     # Build the prompt using Context
     context = (
         Context()
@@ -118,42 +141,27 @@ def extraction_agent(missing_characters: List[str], chapter_text: str) -> str:
             + "\n".join(f"- {name}" for name in missing_characters),
         )
         .add("Chapter Text", chapter_text)
-        .add(
-            "Task",
-            "For each missing character, use the available character tools to:\n"
-            + "1. Create the character in the collection\n"
-            + "2. Add any short names or nicknames you find\n"
-            + "3. Set the character's gender if mentioned\n"
-            + "4. Extract and add characteristics (descriptions, traits, relationships) from the text",
-        )
-        .add(
-            "Available Tools",
-            "- CreateCharacter: Create a new character\n"
-            + "- AddCharacterShortName: Add short names to existing characters\n"
-            + "- SetCharacterGender: Set gender information\n"
-            + "- SearchCharacter: Check if a character exists\n"
-            + "- GetAllCharacters: View current collection",
-        )
-        .add(
-            "Guidelines",
-            "- Be thorough in extracting character information\n"
-            + "- Only create characters that are explicitly listed as missing\n"
-            + "- Use the chapter text as the source of truth for all character information\n"
-            + "- Add multiple characteristics if available (appearance, personality, relationships, etc.)\n"
-            + "- If gender is not mentioned, leave it as default\n"
-            + "- Focus on factual information from the text, not inferences",
-        )
+        .wrap("Prompt", prompt_content)
     )
 
     system_prompt = context.build()
     user_query = f"Extract the following characters from this chapter: {missing_characters}\n\nChapter text:\n{chapter_text}"
 
-    # Call agent with character tools
-    response, _ = agent(system_prompt, user_query, character_tools)
+    # Track characters before extraction
+    initial_count = len(character_collection.characters)
+
+    # Call agent with extraction tools
+    response, _ = agent(system_prompt, user_query, extraction_tools)
+
+    # Get the actual newly added characters
+    new_characters = []
+    for char in character_collection.characters[initial_count:]:
+        new_characters.append(char.name.original_text)
 
     log_info(f"Extraction agent completed: {response[:100]}...")
+    log_info(f"Added {len(new_characters)} new characters: {new_characters}")
     log_exit("extraction_agent")
-    return response
+    return response, new_characters
 
 
 def completeness_judge(
@@ -203,22 +211,11 @@ def extract_characters_from_chapter(chapter_path: str) -> bool:
         with open(chapter_path, "r", encoding="utf-8") as f:
             chapter_text = f.read()
 
-        # Load existing character collection
-        import os
-
-        from helpers.settings import DEFAULT_CHARACTERS_STORAGE
-
-        if os.path.exists(DEFAULT_CHARACTERS_STORAGE):
-            existing_characters = CharacterCollection.from_file(
-                DEFAULT_CHARACTERS_STORAGE
-            )
-        else:
-            existing_characters = CharacterCollection()
-
-        log_info(f"Loaded {len(existing_characters.characters)} existing characters")
+        # Use the singleton character collection
+        log_info(f"Loaded {len(character_collection.characters)} existing characters")
 
         # Step 1: Detection judge - find missing characters
-        missing_characters = detection_judge(chapter_text, existing_characters)
+        missing_characters = detection_judge(chapter_text, character_collection)
         log_info(
             f"Found {len(missing_characters)} missing characters: {missing_characters}"
         )
@@ -229,22 +226,16 @@ def extract_characters_from_chapter(chapter_path: str) -> bool:
             return True
 
         # Step 2: Extraction agent - extract missing characters
-        extraction_agent(missing_characters, chapter_text)
+        _, new_characters = extraction_agent(missing_characters, chapter_text)
         log_info("Character extraction completed")
-
-        # Reload collection to get updated characters
-        updated_characters = CharacterCollection.from_file(DEFAULT_CHARACTERS_STORAGE)
-        new_characters = []
-        for char in updated_characters.characters:
-            if char.name.original_text not in [
-                c.name.original_text for c in existing_characters.characters
-            ]:
-                new_characters.append(char.name.original_text)
-
-        log_info(f"Added {len(new_characters)} new characters: {new_characters}")
 
         # Step 3: Completeness judge - verify all were extracted
         is_complete = completeness_judge(missing_characters, new_characters)
+
+        # Save the updated collection
+        from helpers.settings import DEFAULT_CHARACTERS_STORAGE
+
+        character_collection.save(DEFAULT_CHARACTERS_STORAGE)
 
         if is_complete:
             log_info("Character extraction completed successfully")
