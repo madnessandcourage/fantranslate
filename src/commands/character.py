@@ -27,7 +27,18 @@ def handle_list(args: argparse.Namespace) -> None:
     try:
         collection = load_character_collection()
         s = settings()
-        characters = collection.get_all_characters(s.translate_from)
+
+        # Use specified language or default to original language
+        lang = args.lang if isinstance(args.lang, str) else s.translate_from
+
+        # Validate language if specified
+        if isinstance(args.lang, str) and args.lang not in s.languages:
+            print(f"Error: Language '{args.lang}' is not configured in project.yml")
+            print(f"Available languages: {', '.join(s.languages)}")
+            log_exit("handle_list")
+            return
+
+        characters = collection.get_all_characters(lang)
 
         if not characters:
             print("No characters found.")
@@ -457,7 +468,8 @@ def setup_character_parser(subparsers):  # type: ignore
     character_subparsers = character_parser.add_subparsers(dest="character_command", help="Character commands")  # type: ignore
 
     # character list
-    character_subparsers.add_parser("list", help="List all characters")  # type: ignore
+    list_parser = character_subparsers.add_parser("list", help="List all characters")  # type: ignore
+    list_parser.add_argument("--lang", help="Language code to list characters in (default: original language)")  # type: ignore
 
     # character create <name> [options]
     create_parser = character_subparsers.add_parser("create", help="Create a new character")  # type: ignore
