@@ -168,6 +168,22 @@ def completeness_judge(
             f"Characters currently in the collection: {all_characters}",
         )
         .pipe("completeness_judge")
+        .example(
+            in_='Missing characters: ["John Smith", "Mary Johnson"], All characters: ["John Smith", "Mary Johnson", "Dr. Roberts"]',
+            out="YES",
+        )
+        .example(
+            in_='Missing characters: ["Frodo"], All characters: ["Frodo Baggins", "Samwise Gamgee"]',
+            out="YES",
+        )
+        .failure_example(
+            in_='Missing characters: ["John Smith", "Mary Johnson"], All characters: ["John Smith"]',
+            err="NO, Mary Johnson is missing",
+        )
+        .failure_example(
+            in_='Missing characters: ["Gandalf"], All characters: ["Frodo Baggins", "Samwise Gamgee"]',
+            err="NO, Gandalf is not in the collection",
+        )
     )
 
     user_prompt = (
