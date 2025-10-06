@@ -1,6 +1,4 @@
 languages:
-  - en
   - ru
-  - fr
-translate_from: jp
-translate_to: en
+translate_from: en
+translate_to: ru
