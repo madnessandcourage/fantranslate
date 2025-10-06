@@ -92,6 +92,8 @@ def handle_info(args: argparse.Namespace) -> None:
             if lang != s.translate_from:
                 trans = character.get_translated(lang)
                 print(f"  {lang.upper()}: {trans.name}")
+                if trans.short_names:
+                    print(f"    Short Names: {', '.join(trans.short_names)}")
                 if trans.gender:
                     print(f"    Gender: {trans.gender}")
 
@@ -225,22 +227,23 @@ def handle_edit_translation(args: argparse.Namespace) -> None:
         # Handle short name additions/removals for translation
         if args.add_short_name:
             for name in args.add_short_name:
-                # Find existing short name and add translation
+                # Add translation to all existing short names
                 for sn in character.short_names:
-                    if sn.original_text == name:
-                        setattr(sn, args.lang, name)
-                        print(f"Added {args.lang} translation for short name: {name}")
-                        modified = True
-                        break
+                    setattr(sn, args.lang, name)
+                    print(
+                        f"Added {args.lang} translation '{name}' for short name '{sn.original_text}'"
+                    )
+                    modified = True
 
         if args.remove_short_name:
             for name in args.remove_short_name:
-                # Find existing short name and remove translation
+                # Find short name with this translation and remove it
                 for sn in character.short_names:
-                    if sn.original_text == name:
-                        if hasattr(sn, args.lang):
-                            delattr(sn, args.lang)
-                        print(f"Removed {args.lang} translation for short name: {name}")
+                    if getattr(sn, args.lang, None) == name:
+                        delattr(sn, args.lang)
+                        print(
+                            f"Removed {args.lang} translation '{name}' for short name '{sn.original_text}'"
+                        )
                         modified = True
                         break
 
