@@ -28,6 +28,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 from ai_test_helpers import memoise_for_tests
 from helpers.context import Context
 from tracing import (
+    LogLevel,
+    get_log_level,
     log_enter,
     log_error,
     log_exit,
@@ -128,7 +130,8 @@ def agent(
         agent=agent,
         tools=tools,
         memory=memory,
-        verbose=False,  # We use our custom tracing framework instead
+        verbose=get_log_level()
+        == LogLevel.TRACE,  # Enable LangChain verbose logging at trace level
         handle_parsing_errors=True,
         max_iterations=10,  # Limit iterations to prevent infinite loops
         max_execution_time=300,  # 5 minutes max execution time
