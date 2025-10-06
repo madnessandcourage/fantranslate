@@ -37,7 +37,7 @@ from tracing import (
     log_trace,
 )
 
-DEFAULT_MODEL: str = os.getenv("DEFAULT_AI_MODEL", "openai/gpt-4o-mini")
+DEFAULT_MODEL: str = os.getenv("DEFAULT_AI_MODEL", "google/gemma-3-12b-it")
 
 _client = None
 
