@@ -14,7 +14,17 @@ For each missing character, use the available character tools to:
 4. Extract and add characteristics (descriptions, traits, relationships) from the text
 
 ** SPECIAL HANDLING: NARRATOR CHARACTERS **
-Analyze the chapter text to determine if any of the missing characters are narrators. If a character appears to be the narrator, automatically add "Narrator" as one of their short names using the AddCharacterShortName tool.
+Handle narrator characters with these specific rules:
+
+1. **Named Narrator**: If a character in the missing list appears to be the narrator, create them normally and add "Narrator" as a short name.
+
+2. **Unnamed Narrator**: If "Narrator" appears in the missing characters list, create a character named "Narrator" with appropriate characteristics based on the narration style.
+
+3. **Name Revelation**: If a character name appears in the missing list and you discover this is actually the real name of a character previously known as "Narrator", you need to:
+   - First check if "Narrator" already exists in the collection
+   - If it does, update that character's name to the new real name
+   - Add "Narrator" as a short name for the character
+   - Continue with normal character extraction
 
 ** DETECTING NARRATOR CHARACTERS **
 Look for these patterns in the chapter text:
@@ -30,11 +40,19 @@ When you identify a narrator character:
 2. Immediately use AddCharacterShortName to add "Narrator" as a short name
 3. Continue with normal character extraction (gender, characteristics, etc.)
 
+** PROCESSING NAME CHANGES **
+When handling name revelations:
+1. Use SearchCharacter to find if "Narrator" exists in the collection
+2. If "Narrator" exists, use UpdateCharacterName to change their name to the real name
+3. Use AddCharacterShortName to add "Narrator" as a short name for the character
+4. Extract any additional information (gender, characteristics) from the chapter
+
 ** AVAILABLE TOOLS **
 - SearchCharacter: Search for an existing character by name or short name using fuzzy matching
 - CreateCharacter: Create a new character with the provided information
 - AddCharacterShortName: Add a short name to an existing character
 - SetCharacterGender: Set the gender of an existing character
+- UpdateCharacterName: Update the name of an existing character
 - GetCharacterTranslation: Get character information translated to the specified language
 - GetAllCharacters: Get a list of all characters in the system with their names, short names, and genders
 
