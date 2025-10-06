@@ -72,120 +72,174 @@ def _character_to_xml(translated: TranslatedCharacter) -> str:
 
 def search_character(query: str) -> str:
     """Search for a character by name or short name. Input: search query string."""
-    character = character_collection.search(query)
-    if character:
-        s = settings()
-        translated = character.get_translated(s.translate_from)
-        return _character_to_xml(translated)
-    else:
-        return "Character not found"
+    try:
+        if not query or not query.strip():
+            return "Error searching character: Search query cannot be empty"
+
+        character = character_collection.search(query)
+        if character:
+            s = settings()
+            translated = character.get_translated(s.translate_from)
+            return _character_to_xml(translated)
+        else:
+            return f"Character not found for query '{query}'. Available characters: {[c.name.original_text for c in character_collection.characters]}"
+    except Exception as e:
+        return f"Error searching for character with query '{query}': {type(e).__name__}: {str(e)}"
 
 
 def create_character(name: str, gender: str = "UNKNOWN") -> str:
     """Create a new character. Input: name (required), gender (optional, default 'other')."""
     try:
+        if not name or not name.strip():
+            return "Error creating character: Character name cannot be empty"
+
         character = Character(
             name=name,
             gender=gender,
             characteristics=[],
         )
         character_collection.add_character(character)
-        return f"Character '{name}' created successfully"
+        return f"Character '{name}' created successfully with gender '{gender}'"
     except Exception as e:
-        return f"Error creating character: {str(e)}"
+        return f"Error creating character '{name}' with gender '{gender}': {type(e).__name__}: {str(e)}"
 
 
 def add_character_short_name(name: str, short_name: str) -> str:
     """Add a short name to an existing character. Input: character name, short name to add."""
     try:
+        if not name or not name.strip():
+            return "Error adding short name: Character name cannot be empty"
+        if not short_name or not short_name.strip():
+            return "Error adding short name: Short name cannot be empty"
+
         character = character_collection.search(name)
         if not character:
-            return f"Character '{name}' not found"
+            return f"Error adding short name: Character '{name}' not found in collection. Available characters: {[c.name.original_text for c in character_collection.characters]}"
         character.add_short_name(short_name)
         character_collection._rebuild_index()  # type: ignore
-        return f"Short name '{short_name}' added to character '{name}'"
+        return f"Short name '{short_name}' added to character '{name}' successfully"
     except Exception as e:
-        return f"Error adding short name: {str(e)}"
+        return f"Error adding short name '{short_name}' to character '{name}': {type(e).__name__}: {str(e)}"
 
 
 def set_character_gender(name: str, gender: str) -> str:
     """Set the gender of an existing character. Input: character name, gender."""
     try:
+        if not name or not name.strip():
+            return "Error setting gender: Character name cannot be empty"
+        if not gender or not gender.strip():
+            return "Error setting gender: Gender cannot be empty"
+
         character = character_collection.search(name)
         if not character:
-            return f"Character '{name}' not found"
+            return f"Error setting gender: Character '{name}' not found in collection. Available characters: {[c.name.original_text for c in character_collection.characters]}"
         character.update(gender=gender)
-        return f"Gender of character '{name}' set to '{gender}'"
+        return f"Gender of character '{name}' set to '{gender}' successfully"
     except Exception as e:
-        return f"Error setting gender: {str(e)}"
+        return f"Error setting gender of character '{name}' to '{gender}': {type(e).__name__}: {str(e)}"
 
 
 def get_character_translation(input_str: str) -> str:
     """Get character information translated to a language. Input: JSON with name and language."""
     try:
+        if not input_str or not input_str.strip():
+            return "Error getting translation: Input JSON cannot be empty"
+
         data = json.loads(input_str)
-        name = data["name"]
-        language = data["language"]
+        name = data.get("name")
+        language = data.get("language")
+
+        if not name or not name.strip():
+            return "Error getting translation: Character name cannot be empty in JSON"
+        if not language or not language.strip():
+            return "Error getting translation: Language cannot be empty in JSON"
+
         translated = character_collection.get_character_translation(name, language)
         if translated:
             return _character_to_xml(translated)
         else:
-            return f"Character '{name}' not found"
+            return f"Error getting translation: Character '{name}' not found in collection. Available characters: {[c.name.original_text for c in character_collection.characters]}"
+    except json.JSONDecodeError as e:
+        return f"Error getting translation: Invalid JSON format in input '{input_str}': {str(e)}"
     except Exception as e:
-        return f"Error getting translation: {str(e)}"
+        return f"Error getting translation for input '{input_str}': {type(e).__name__}: {str(e)}"
 
 
 def get_all_characters() -> str:
     """Get all characters in the system. Returns XML with name, short_names, and gender only."""
-    s = settings()
-    characters = character_collection.get_all_characters(s.translate_from)
+    try:
+        s = settings()
+        characters = character_collection.get_all_characters(s.translate_from)
 
-    xml_parts = ["<characters>"]
-    for char in characters:
-        xml_parts.append("<character>")
-        xml_parts.append(f"<name>{char.name}</name>")
-        xml_parts.append("<short_names>")
-        for sn in char.short_names:
-            xml_parts.append(f"<short_name>{sn}</short_name>")
-        xml_parts.append("</short_names>")
-        if char.gender:
-            xml_parts.append(f"<gender>{char.gender}</gender>")
-        xml_parts.append("</character>")
-    xml_parts.append("</characters>")
+        if not characters:
+            return "<characters></characters>"
 
-    return "".join(xml_parts)
+        xml_parts = ["<characters>"]
+        for char in characters:
+            xml_parts.append("<character>")
+            xml_parts.append(f"<name>{char.name}</name>")
+            xml_parts.append("<short_names>")
+            for sn in char.short_names:
+                xml_parts.append(f"<short_name>{sn}</short_name>")
+            xml_parts.append("</short_names>")
+            if char.gender:
+                xml_parts.append(f"<gender>{char.gender}</gender>")
+            xml_parts.append("</character>")
+        xml_parts.append("</characters>")
 
-
-def _search_character_with_logging(args: SearchCharacterArgs) -> str:
-    log_llm_tool("SearchCharacter", args.query)
-    return search_character(args.query)
-
-
-def _create_character_with_logging(args: CreateCharacterArgs) -> str:
-    log_llm_tool("CreateCharacter", args.name, args.gender)
-    return create_character(args.name, args.gender)
+        return "".join(xml_parts)
+    except Exception as e:
+        return f"Error getting all characters: {type(e).__name__}: {str(e)}"
 
 
-def _add_short_name_with_logging(args: AddShortNameArgs) -> str:
-    log_llm_tool("AddCharacterShortName", args.name, args.short_name)
-    return add_character_short_name(args.name, args.short_name)
+def _search_character_with_logging(query: str) -> str:
+    log_llm_tool("SearchCharacter", query)
+    try:
+        return search_character(query)
+    except Exception as e:
+        return f"Error searching for character: {str(e)}"
 
 
-def _set_gender_with_logging(args: SetGenderArgs) -> str:
-    log_llm_tool("SetCharacterGender", args.name, args.gender)
-    return set_character_gender(args.name, args.gender)
+def _create_character_with_logging(name: str, gender: str = "UNKNOWN") -> str:
+    log_llm_tool("CreateCharacter", name, gender)
+    try:
+        return create_character(name, gender)
+    except Exception as e:
+        return f"Error creating character: {str(e)}"
 
 
-def _get_translation_with_logging(args: GetTranslationArgs) -> str:
-    log_llm_tool("GetCharacterTranslation", args.name, args.language)
-    return get_character_translation(
-        json.dumps({"name": args.name, "language": args.language})
-    )
+def _add_short_name_with_logging(name: str, short_name: str) -> str:
+    log_llm_tool("AddCharacterShortName", name, short_name)
+    try:
+        return add_character_short_name(name, short_name)
+    except Exception as e:
+        return f"Error adding short name: {str(e)}"
 
 
-def _get_all_characters_with_logging(args: GetAllCharactersArgs) -> str:
+def _set_gender_with_logging(name: str, gender: str) -> str:
+    log_llm_tool("SetCharacterGender", name, gender)
+    try:
+        return set_character_gender(name, gender)
+    except Exception as e:
+        return f"Error setting gender: {str(e)}"
+
+
+def _get_translation_with_logging(name: str, language: str) -> str:
+    log_llm_tool("GetCharacterTranslation", name, language)
+    try:
+        return get_character_translation(
+            json.dumps({"name": name, "language": language})
+        )
+    except Exception as e:
+        return f"Error getting translation: {str(e)}"
+
+
+def _get_all_characters_with_logging() -> str:
     log_llm_tool("GetAllCharacters")
-    return get_all_characters()
+    try:
+        return get_all_characters()
+    except Exception as e:
+        return f"Error getting all characters: {str(e)}"
 
 
 search_character_tool = StructuredTool.from_function(  # type: ignore[reportUnknownMemberType] # LangChain type stubs are incomplete

@@ -29,3 +29,13 @@ For each missing character, use the available character tools to:
 - If gender is not mentioned, leave it as default
 - Focus on factual information from the text, not inferences
 - **NARRATOR HANDLING**: When creating a character named "Narrator", always add "Narrator" as a short name. If the narrator has a real name discovered in the text, use that as the primary name and keep "Narrator" as a short name. If no real name is found, use "Narrator" as the primary character name.
+
+** ERROR HANDLING AND RETRY LOGIC **
+- If a tool call fails with an error message, analyze the error carefully:
+  - Check if you're passing the correct parameters (names, formats, etc.)
+  - Verify that the character exists before trying to modify it
+  - Ensure all required fields are provided and valid
+- When you encounter an error, reflect on what went wrong and try the tool again with corrected parameters
+- If a character is not found, use GetAllCharacters to see what characters are available
+- Never give up on the first error - retry with different approaches or corrected parameters
+- Error messages will include specific details about what went wrong to help you self-correct

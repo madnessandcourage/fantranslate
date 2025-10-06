@@ -22,6 +22,14 @@ This document provides guidelines for AI agents and automated tools working on t
 - For new features, update `src/main.py` and adjust entry points in `pyproject.toml` if needed.
 - Commit changes only when explicitly requested.
 
+### Testing on Real Projects
+
+Since `./script/fantranslate` executes in the "playground" folder, you need to set up the project configuration there:
+
+1. Run `./script/fantranslate init` to create `project.yml` in the playground folder
+2. Copy any required resources (like chapter files) to the playground folder
+3. Then run other commands like `./script/fantranslate extract_characters chapter.txt`
+
 ## Security
 
 - Never introduce code that exposes secrets or keys.
@@ -200,6 +208,102 @@ If LangChain's verbose mode is ever needed for debugging specific LangChain issu
 - **Custom tracing over verbose**: Disable LangChain's verbose mode and use custom tracing framework for better control.
 - **Tool design**: Create tools that work seamlessly with agentic workflows.
 - **Dual interfaces**: Ensure functionality is accessible through both Python APIs and LangChain tools.
+
+## Tool Writing Best Practices
+
+When creating tools for LangChain agents, follow these critical patterns to ensure reliable operation:
+
+### Function Signatures for StructuredTool
+
+- **Accept individual parameters, not Pydantic models**: When using `StructuredTool.from_function()`, the underlying function must accept individual parameters that match the Pydantic schema fields, not the Pydantic model instance itself.
+
+  ```python
+  # ❌ Incorrect - function receives Pydantic model
+  def _create_character_with_logging(args: CreateCharacterArgs) -> str:
+      return create_character(args.name, args.gender)
+
+  # ✅ Correct - function receives individual parameters
+  def _create_character_with_logging(name: str, gender: str = "UNKNOWN") -> str:
+      return create_character(name, gender)
+  ```
+
+- **Match parameter names exactly**: Parameter names in the function signature must match the field names in the Pydantic `args_schema`.
+
+### Error Handling
+
+- **Never let exceptions crash the agent**: Always wrap tool implementations with try-catch blocks and return error messages as strings instead of raising exceptions.
+
+  ```python
+  def _create_character_with_logging(name: str, gender: str = "UNKNOWN") -> str:
+      try:
+          return create_character(name, gender)
+      except Exception as e:
+          return f"Error creating character: {str(e)}"
+  ```
+
+- **Return meaningful error messages**: Error messages should be descriptive and help the AI understand what went wrong, allowing it to potentially retry or adjust its approach.
+
+### Configuration and Dependencies
+
+- **Load settings from correct paths**: Ensure configuration files are loaded from the project root (`RESOURCE_DIR`) rather than the current working directory, as scripts may change the working directory.
+
+  ```python
+  # In src/helpers/settings.py
+  project_file = os.path.join(RESOURCE_DIR, "project.yml")  # ✅ Correct
+  # NOT: project_file = os.path.join(os.getcwd(), "project.yml")  # ❌ Incorrect
+  ```
+
+### Logging
+
+- **Use LLM-specific logging**: Always log tool usage with `log_llm_tool()` for proper tracing and debugging.
+
+  ```python
+  def _create_character_with_logging(name: str, gender: str = "UNKNOWN") -> str:
+      log_llm_tool("CreateCharacter", name, gender)  # Log tool usage
+      try:
+          return create_character(name, gender)
+      except Exception as e:
+          return f"Error creating character: {str(e)}"
+  ```
+
+### Error Messages and Self-Correction
+
+- **Descriptive error messages**: Include the original exception type and message, parameter values, and context to help AI agents understand and fix issues.
+
+  ```python
+  # ❌ Vague error
+  return f"Error: {str(e)}"
+
+  # ✅ Descriptive error with context
+  return f"Error creating character '{name}' with gender '{gender}': {type(e).__name__}: {str(e)}"
+  ```
+
+- **Include available options**: When operations fail due to missing entities, list available alternatives.
+
+  ```python
+  return f"Character '{name}' not found. Available characters: {[c.name.original_text for c in character_collection.characters]}"
+  ```
+
+- **Validate inputs**: Check for empty/null values and provide specific error messages.
+
+  ```python
+  if not name or not name.strip():
+      return "Error: Character name cannot be empty"
+  ```
+
+### Agent Instructions for Error Handling
+
+- **Retry logic**: Instruct agents to retry failed tool calls with corrected parameters.
+
+- **Parameter reflection**: Guide agents to analyze error messages and verify they're passing correct parameters.
+
+- **Available options**: When operations fail, agents should use discovery tools (like GetAllCharacters) to understand available options.
+
+### Testing
+
+- **Test tool error handling**: Write tests that verify tools handle exceptions gracefully and return appropriate error messages.
+- **Test with real agent execution**: Ensure tools work correctly when called by LangChain agents, not just in isolation.
+- **Test error scenarios**: Verify that agents can recover from tool failures and retry with corrected parameters.
 
 ## Project Infrastructure
 
