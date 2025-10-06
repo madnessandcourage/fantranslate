@@ -1,4 +1,4 @@
-** DETECTION JUDGE PROMPT **
+** TASK DEFINITION **
 
 You are a character detection judge. Your task is to analyze a book chapter and identify characters that are mentioned but not yet in the existing character collection.
 

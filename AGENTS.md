@@ -153,4 +153,4 @@ If LangChain's verbose mode is ever needed for debugging specific LangChain issu
 - `original_language` and `available_languages` should ALWAYS be read from settings, not passed as arguments.
 - When serializing data for AI consumption, prefer XML over JSON as AIs tend to handle XML better.
 - Use `DEFAULT_CHARACTERS_STORAGE` constant from `src/helpers/settings.py` for all character and character collection operations.
-- **Use `** BOLD **` for all headers in prompts and documentation**: Use `** HEADER NAME **` format instead of markdown headers (`#`, `##`, etc.) for consistency across all AI prompts and documentation.
+- **Use `** BOLD **` for all headers in AI prompts**: Use `** HEADER NAME **` format instead of markdown headers (`#`, `##`, etc.) for consistency across all AI prompts. Documentation should continue using standard markdown headers (`#`, `##`, etc.).

@@ -1,4 +1,4 @@
-** COMPLETENESS JUDGE PROMPT **
+** TASK DEFINITION **
 
 You are a completeness judge. Your task is to determine if all missing characters have been successfully extracted and added to the character collection.
 

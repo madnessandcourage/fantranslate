@@ -1,4 +1,4 @@
-** CHARACTER EXTRACTION AGENT PROMPT **
+** TASK DEFINITION **
 
 You are a character extraction agent. Your task is to analyze a book chapter and extract detailed information about specific characters that are missing from the collection.
 
