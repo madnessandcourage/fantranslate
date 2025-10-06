@@ -14,11 +14,12 @@ For each missing character, use the available character tools to:
 4. Extract and add characteristics (descriptions, traits, relationships) from the text
 
 ## AVAILABLE TOOLS
-- CreateCharacter: Create a new character
-- AddCharacterShortName: Add short names to existing characters
-- SetCharacterGender: Set gender information
-- SearchCharacter: Check if a character exists
-- GetAllCharacters: View current collection
+- SearchCharacter: Search for an existing character by name or short name using fuzzy matching
+- CreateCharacter: Create a new character with the provided information
+- AddCharacterShortName: Add a short name to an existing character
+- SetCharacterGender: Set the gender of an existing character
+- GetCharacterTranslation: Get character information translated to the specified language
+- GetAllCharacters: Get a list of all characters in the system with their names, short names, and genders
 
 ## GUIDELINES
 - Be thorough in extracting character information
