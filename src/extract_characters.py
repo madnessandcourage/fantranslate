@@ -245,9 +245,7 @@ def completeness_judge(
         )
     )
 
-    user_prompt = (
-        f"Have all the missing characters been successfully added to the collection?"
-    )
+    user_prompt = f"Have all the characters listed in <missing_characters> been successfully added to the collection shown in <all_characters>?"
 
     is_complete, reason = yesno(user_prompt, system_context=context)
 
