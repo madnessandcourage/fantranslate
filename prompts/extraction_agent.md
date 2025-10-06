@@ -28,3 +28,13 @@ For each missing character, use the available character tools to:
 - Add multiple characteristics if available (appearance, personality, relationships, etc.)
 - If gender is not mentioned, leave it as default
 - Focus on factual information from the text, not inferences
+
+** ERROR HANDLING AND RETRY LOGIC **
+- If a tool call fails with an error message, analyze the error carefully:
+  - Check if you're passing the correct parameters (names, formats, etc.)
+  - Verify that the character exists before trying to modify it
+  - Ensure all required fields are provided and valid
+- When you encounter an error, reflect on what went wrong and try the tool again with corrected parameters
+- If a character is not found, use GetAllCharacters to see what characters are available
+- Never give up on the first error - retry with different approaches or corrected parameters
+- Error messages will include specific details about what went wrong to help you self-correct

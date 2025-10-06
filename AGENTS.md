@@ -258,10 +258,44 @@ When creating tools for LangChain agents, follow these critical patterns to ensu
           return f"Error creating character: {str(e)}"
   ```
 
+### Error Messages and Self-Correction
+
+- **Descriptive error messages**: Include the original exception type and message, parameter values, and context to help AI agents understand and fix issues.
+
+  ```python
+  # ❌ Vague error
+  return f"Error: {str(e)}"
+
+  # ✅ Descriptive error with context
+  return f"Error creating character '{name}' with gender '{gender}': {type(e).__name__}: {str(e)}"
+  ```
+
+- **Include available options**: When operations fail due to missing entities, list available alternatives.
+
+  ```python
+  return f"Character '{name}' not found. Available characters: {[c.name.original_text for c in character_collection.characters]}"
+  ```
+
+- **Validate inputs**: Check for empty/null values and provide specific error messages.
+
+  ```python
+  if not name or not name.strip():
+      return "Error: Character name cannot be empty"
+  ```
+
+### Agent Instructions for Error Handling
+
+- **Retry logic**: Instruct agents to retry failed tool calls with corrected parameters.
+
+- **Parameter reflection**: Guide agents to analyze error messages and verify they're passing correct parameters.
+
+- **Available options**: When operations fail, agents should use discovery tools (like GetAllCharacters) to understand available options.
+
 ### Testing
 
 - **Test tool error handling**: Write tests that verify tools handle exceptions gracefully and return appropriate error messages.
 - **Test with real agent execution**: Ensure tools work correctly when called by LangChain agents, not just in isolation.
+- **Test error scenarios**: Verify that agents can recover from tool failures and retry with corrected parameters.
 
 ## Project Infrastructure
 

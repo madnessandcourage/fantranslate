@@ -25,9 +25,12 @@ def settings() -> Settings:
     if __settings is not None:
         return __settings
 
-    project_file = os.path.join(RESOURCE_DIR, "project.yml")
+    # Try current working directory first (for tests), then fall back to RESOURCE_DIR (for app)
+    project_file = os.path.join(os.getcwd(), "project.yml")
     if not os.path.exists(project_file):
-        raise FileNotFoundError(f"project.yml not found in {os.getcwd()}")
+        project_file = os.path.join(RESOURCE_DIR, "project.yml")
+        if not os.path.exists(project_file):
+            raise FileNotFoundError(f"project.yml not found in {os.getcwd()} or {RESOURCE_DIR}")
 
     with open(project_file, "r") as f:
         data = cast(Dict[str, Any], yaml.safe_load(f))
