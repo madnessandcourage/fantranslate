@@ -176,13 +176,13 @@ def completeness_judge(
             in_='Missing characters: ["Frodo"], All characters: ["Frodo Baggins", "Samwise Gamgee"]',
             out="YES",
         )
-        .failure_example(
+        .example(
             in_='Missing characters: ["John Smith", "Mary Johnson"], All characters: ["John Smith"]',
-            err="NO, Mary Johnson is missing",
+            out="NO, Mary Johnson is missing",
         )
-        .failure_example(
+        .example(
             in_='Missing characters: ["Gandalf"], All characters: ["Frodo Baggins", "Samwise Gamgee"]',
-            err="NO, Gandalf is not in the collection",
+            out="NO, Gandalf is not in the collection",
         )
     )
 
