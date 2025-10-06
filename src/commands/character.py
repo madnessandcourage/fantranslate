@@ -36,15 +36,15 @@ def handle_list(args: argparse.Namespace) -> None:
 
         # Print table
         if characters:
-            print(f"{'Name':<20} {'Short Names':<20} {'Gender':<10} {'Chars'}")
-            print("-" * 70)
+            print(f"{'Name':<20} {'Short Names':<35} {'Gender':<10} {'Chars'}")
+            print("-" * 85)
             for char in characters:
                 short_names = ", ".join(char.short_names) if char.short_names else ""
                 name = char.name[:19] if len(char.name) > 19 else char.name
-                short = short_names[:19] if len(short_names) > 19 else short_names
+                short = short_names[:34] if len(short_names) > 34 else short_names
                 gender = (char.gender or "")[:9]
                 print(
-                    f"{name:<20} {short:<20} {gender:<10} {len(char.characteristics)}"
+                    f"{name:<20} {short:<35} {gender:<10} {len(char.characteristics)}"
                 )
 
     except Exception as e:
