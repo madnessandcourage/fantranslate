@@ -4,6 +4,7 @@ import yaml
 
 from helpers.fuzzy import FuzzyIndex
 from helpers.settings import settings  # type: ignore
+
 from .character import Character, TranslatedCharacter
 
 

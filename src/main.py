@@ -8,6 +8,15 @@ from typing import Optional
 
 from dotenv import load_dotenv
 
+from ai import agent, ai
+from tools.character import (
+    add_character_short_name,
+    create_character,
+    get_character_translation,
+    search_character,
+    set_character_gender,
+)
+from tools.hello import hello_tool
 from tracing import (
     LogLevel,
     log_enter,
@@ -17,16 +26,6 @@ from tracing import (
     log_trace,
     set_log_level,
 )
-
-from ai import ai, agent
-from tools.character import (
-    add_character_short_name,
-    create_character,
-    get_character_translation,
-    search_character,
-    set_character_gender,
-)
-from tools.hello import hello_tool
 
 
 def main():

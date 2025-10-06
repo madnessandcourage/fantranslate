@@ -5,7 +5,7 @@ import os
 import sys
 from typing import Any, Callable, Dict
 
-from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage
+from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage  # type: ignore[reportUnusedImport]
 from langchain.tools import BaseTool
 
 
