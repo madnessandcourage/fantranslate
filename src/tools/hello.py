@@ -1,13 +1,22 @@
-from langchain.tools import Tool
+from langchain.tools import StructuredTool
+from pydantic import BaseModel
+
+from tracing import log_llm_tool
 
 
-def get_hello_target(input_str: str) -> str:
+class HelloArgs(BaseModel):
+    pass  # No arguments needed
+
+
+def get_hello_target(args: HelloArgs) -> str:
     """Returns the target to say hello to. Ignores input."""
+    log_llm_tool("HelloTool")
     return "World"
 
 
-hello_tool = Tool(
+hello_tool = StructuredTool.from_function(  # type: ignore[reportUnknownMemberType] # LangChain type stubs are incomplete
+    func=get_hello_target,
     name="HelloTool",
     description="Use this tool to find out who to say hello to. It takes no parameters.",
-    func=get_hello_target,
+    args_schema=HelloArgs,
 )

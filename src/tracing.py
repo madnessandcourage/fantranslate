@@ -18,6 +18,10 @@ def set_log_level(level: LogLevel) -> None:
     _current_log_level = level
 
 
+def get_log_level() -> LogLevel:
+    return _current_log_level
+
+
 def _should_log(level: LogLevel) -> bool:
     return _current_log_level.value >= level.value
 
