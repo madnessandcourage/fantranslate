@@ -4,6 +4,8 @@ from typing import Any, Dict, List, cast
 
 import yaml
 
+DEFAULT_CHARACTERS_STORAGE = "characters.yml"
+
 
 @dataclass
 class Settings:
