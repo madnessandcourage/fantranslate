@@ -193,7 +193,7 @@ def get_all_characters() -> str:
 
 
 def _search_character_with_logging(query: str) -> str:
-    log_llm_tool("SearchCharacter", query)
+    log_llm_tool("SearchCharacter", query=query)
     try:
         return search_character(query)
     except Exception as e:
@@ -201,7 +201,7 @@ def _search_character_with_logging(query: str) -> str:
 
 
 def _create_character_with_logging(name: str, gender: str = "UNKNOWN") -> str:
-    log_llm_tool("CreateCharacter", name, gender)
+    log_llm_tool("CreateCharacter", name=name, gender=gender)
     try:
         return create_character(name, gender)
     except Exception as e:
@@ -209,7 +209,7 @@ def _create_character_with_logging(name: str, gender: str = "UNKNOWN") -> str:
 
 
 def _add_short_name_with_logging(name: str, short_name: str) -> str:
-    log_llm_tool("AddCharacterShortName", name, short_name)
+    log_llm_tool("AddCharacterShortName", name=name, short_name=short_name)
     try:
         return add_character_short_name(name, short_name)
     except Exception as e:
@@ -217,7 +217,7 @@ def _add_short_name_with_logging(name: str, short_name: str) -> str:
 
 
 def _set_gender_with_logging(name: str, gender: str) -> str:
-    log_llm_tool("SetCharacterGender", name, gender)
+    log_llm_tool("SetCharacterGender", name=name, gender=gender)
     try:
         return set_character_gender(name, gender)
     except Exception as e:
@@ -225,7 +225,7 @@ def _set_gender_with_logging(name: str, gender: str) -> str:
 
 
 def _get_translation_with_logging(name: str, language: str) -> str:
-    log_llm_tool("GetCharacterTranslation", name, language)
+    log_llm_tool("GetCharacterTranslation", name=name, language=language)
     try:
         return get_character_translation(
             json.dumps({"name": name, "language": language})

@@ -99,7 +99,7 @@ log_error("Error message")
 log_llm_system("System prompt")
 log_llm_operator("User query")
 log_llm_ai("AI response")
-log_llm_tool("tool_name", "arg1", "arg2")  # Tool usage
+log_llm_tool("tool_name", arg1="value1", arg2="value2")  # Tool usage
 ```
 
 ### Debug Levels
@@ -259,7 +259,7 @@ When creating tools for LangChain agents, follow these critical patterns to ensu
 
   ```python
   def _create_character_with_logging(name: str, gender: str = "UNKNOWN") -> str:
-      log_llm_tool("CreateCharacter", name, gender)  # Log tool usage
+      log_llm_tool("CreateCharacter", name=name, gender=gender)  # Log tool usage
       try:
           return create_character(name, gender)
       except Exception as e:
