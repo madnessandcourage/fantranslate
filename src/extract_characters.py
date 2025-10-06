@@ -47,7 +47,7 @@ def detection_judge(
             display = f"- {full_name} (a.k.a {', '.join(short_names)})"
         else:
             display = f"- {full_name}"
-        existing_chars_display.append(display)
+        existing_chars_display.append(display)  # type: ignore
 
     # Build the prompt using Context
     context = (
@@ -55,7 +55,7 @@ def detection_judge(
         .add(
             "Existing Characters",
             "The following characters are already in the collection:\n"
-            + "\n".join(existing_chars_display),
+            + "\n".join(existing_chars_display),  # type: ignore
         )
         .add("Chapter Text", chapter_text)
         .pipe("detection_judge")
