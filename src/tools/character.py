@@ -1,14 +1,17 @@
 import json
+import os
 from typing import List
 
 from langchain.tools import Tool
 
-from helpers.settings import settings
+from helpers.settings import DEFAULT_CHARACTERS_STORAGE, settings
 from models.character import Character, TranslatedCharacter
 from models.character_collection import CharacterCollection
 
 # Global character collection
 character_collection = CharacterCollection()
+if os.path.exists(DEFAULT_CHARACTERS_STORAGE):
+    character_collection = CharacterCollection.from_file(DEFAULT_CHARACTERS_STORAGE)
 
 
 def _character_to_xml(translated: TranslatedCharacter) -> str:
