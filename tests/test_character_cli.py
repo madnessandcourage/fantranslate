@@ -18,7 +18,7 @@ class TestCharacterCLI:
     """Test character CLI commands."""
 
     @patch("commands.character.load_character_collection")
-    def test_list_empty_collection(self, mock_load):  # type: ignore
+    def test_list_empty_collection(self, mock_load):  # type: ignore[no-untyped-def]
         """Test character list with empty collection."""
         mock_collection = MagicMock()
         mock_collection.get_all_characters.return_value = []
