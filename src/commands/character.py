@@ -374,6 +374,63 @@ def handle_remove(args: argparse.Namespace) -> None:
     log_exit("handle_remove")
 
 
+def handle_translate(args: argparse.Namespace) -> None:
+    """Handle the 'character translate' command."""
+    log_enter("handle_translate")
+
+    try:
+        collection = load_character_collection()
+        character = collection.search(args.search_query)
+
+        if not character:
+            print(f"Character '{args.search_query}' not found.")
+            log_exit("handle_translate")
+            return
+
+        # Check if chapter file exists
+        if not os.path.exists(args.chapter_path):
+            print(f"Chapter file not found: {args.chapter_path}")
+            log_exit("handle_translate")
+            return
+
+        # Check if target language is configured
+        s = settings()
+        if args.to not in s.languages:
+            print(f"Language '{args.to}' is not configured in project.yml")
+            log_exit("handle_translate")
+            return
+
+        # Read chapter contents
+        with open(args.chapter_path, "r", encoding="utf-8") as f:
+            chapter_contents = f.read()
+
+        # Temporarily set translate_to to the target language
+        original_translate_to = s.translate_to
+        s.translate_to = args.to
+
+        try:
+            # Translate the character
+            character.translate(chapter_contents)
+            print(
+                f"Character '{character.name.original_text}' translated to {args.to} successfully."
+            )
+
+            # Save the updated collection
+            collection.rebuild_index()
+            save_character_collection(collection)
+
+        finally:
+            # Restore original translate_to
+            s.translate_to = original_translate_to
+
+    except Exception as e:
+        log_error(f"Error translating character: {e}")
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    log_exit("handle_translate")
+
+
 def setup_character_parser(subparsers):  # type: ignore
     """Set up the character subcommand parser."""
     character_parser = subparsers.add_parser("character", help="Manage characters")  # type: ignore
@@ -422,6 +479,12 @@ def setup_character_parser(subparsers):  # type: ignore
     remove_parser = character_subparsers.add_parser("remove", help="Remove a character")  # type: ignore
     remove_parser.add_argument("search_query", help="Character name or short name to remove")  # type: ignore
 
+    # character translate <search_query> <chapter_path> --to <lang>
+    translate_parser = character_subparsers.add_parser("translate", help="Translate character using AI")  # type: ignore
+    translate_parser.add_argument("search_query", help="Character name or short name to translate")  # type: ignore
+    translate_parser.add_argument("chapter_path", help="Path to chapter file for context")  # type: ignore
+    translate_parser.add_argument("--to", required=True, help="Target language code")  # type: ignore
+
 
 def handle_character_command(args: argparse.Namespace) -> None:
     """Handle character subcommands."""
@@ -439,6 +502,8 @@ def handle_character_command(args: argparse.Namespace) -> None:
         handle_edit_translation(args)
     elif args.character_command == "remove":
         handle_remove(args)
+    elif args.character_command == "translate":
+        handle_translate(args)
     else:
         print(
             "Unknown character command. Use 'fantranslate character --help' for help."

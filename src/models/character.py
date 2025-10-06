@@ -128,6 +128,99 @@ class Character:
             ],
         )
 
+    def translate(self, chapter_contents: str) -> None:
+        """Translate character properties using AI based on chapter context."""
+        from ai import ai
+        from helpers.context import Context
+        from helpers.settings import settings
+        from tracing import log_enter, log_exit, log_info
+
+        log_enter("translate_character")
+
+        s = settings()
+
+        # Step 1: Get chapter summary focusing on this character
+        summary_prompt = f"""Summarize the chapter focusing on the character "{self.name.original_text}".
+Include key events, interactions, and descriptions related to this character.
+Keep the summary concise but informative."""
+
+        log_info("Getting chapter summary for character")
+        chapter_summary = ai(summary_prompt, chapter_contents)
+        if not chapter_summary:
+            log_info("Failed to get chapter summary")
+            log_exit("translate_character")
+            return
+
+        # Step 2: Build context
+        context = Context()
+        context = context.add(
+            "PROBLEM",
+            "We need to translate character information from a book chapter to make it available in multiple languages.",
+        )
+        context = context.add("CHAPTER SUMMARY", chapter_summary)
+        context = context.wrap("CHARACTER_DATA", self.to_xml())
+
+        # Step 3: Translate each property independently
+        system_prompt = context.pipe("character_translator").build()
+
+        # Translate name
+        if self.name.original_text:
+            name_prompt = f"Translate the character's name '{self.name.original_text}' to {s.translate_to}."
+            translated_name = ai(system_prompt, name_prompt)
+            if translated_name:
+                setattr(self.name, s.translate_to, translated_name.strip())
+
+        # Translate short names
+        for short_name in self.short_names:
+            if short_name.original_text:
+                sn_prompt = f"Translate the character's short name '{short_name.original_text}' to {s.translate_to}."
+                translated_sn = ai(system_prompt, sn_prompt)
+                if translated_sn:
+                    setattr(short_name, s.translate_to, translated_sn.strip())
+
+        # Translate gender
+        if self.gender and self.gender.original_text:
+            gender_prompt = f"Translate the character's gender '{self.gender.original_text}' to {s.translate_to}."
+            translated_gender = ai(system_prompt, gender_prompt)
+            if translated_gender:
+                setattr(self.gender, s.translate_to, translated_gender.strip())
+
+        # Translate characteristics
+        for char in self.characteristics:
+            if char.text.original_text:
+                char_prompt = f"Translate this character description: '{char.text.original_text}' to {s.translate_to}."
+                translated_char = ai(system_prompt, char_prompt)
+                if translated_char:
+                    setattr(char.text, s.translate_to, translated_char.strip())
+
+        log_exit("translate_character")
+
+    def to_xml(self) -> str:
+        """Serialize character to XML format for AI consumption."""
+        xml_parts = ["<character>"]
+
+        xml_parts.append(f"<name>{self.name.original_text}</name>")
+
+        if self.short_names:
+            xml_parts.append("<short_names>")
+            for sn in self.short_names:
+                xml_parts.append(f"<name>{sn.original_text}</name>")
+            xml_parts.append("</short_names>")
+
+        if self.gender:
+            xml_parts.append(f"<gender>{self.gender.original_text}</gender>")
+
+        if self.characteristics:
+            xml_parts.append("<characteristics>")
+            for char in self.characteristics:
+                xml_parts.append(
+                    f"<characteristic confidence='{char.confidence}'>{char.text.original_text}</characteristic>"
+                )
+            xml_parts.append("</characteristics>")
+
+        xml_parts.append("</character>")
+        return "\n".join(xml_parts)
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "name": self.name.to_dict(),
