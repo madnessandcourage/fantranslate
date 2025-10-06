@@ -170,14 +170,11 @@ def completeness_judge(
         .pipe("completeness_judge")
     )
 
-    system_prompt = context.build()
     user_prompt = (
         f"Have all the missing characters been successfully added to the collection?"
     )
 
-    is_complete, reason = yesno(
-        user_prompt, system_prompt=system_prompt, skip_examples=True
-    )
+    is_complete, reason = yesno(user_prompt, system_context=context)
 
     if is_complete:
         log_info("Completeness check passed: all missing characters extracted")
