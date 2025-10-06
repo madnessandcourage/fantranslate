@@ -43,6 +43,15 @@ def main():
         help="Target languages, comma-separated (default: ru)",
     )
 
+    # Extract characters command
+    extract_parser = subparsers.add_parser(
+        "extract_characters", help="Extract characters from a chapter"
+    )
+    extract_parser.add_argument(
+        "chapter_path",
+        help="Path to the chapter text file",
+    )
+
     args = parser.parse_args()
 
     # Set log level based on verbosity
@@ -62,6 +71,8 @@ def main():
 
     if args.command == "init":
         handle_init(args.from_lang, args.to_langs)
+    elif args.command == "extract_characters":
+        handle_extract_characters(args.chapter_path)
     else:
         parser.print_help()
 
@@ -103,6 +114,25 @@ def handle_init(from_lang: str, to_langs_str: str) -> None:
         )
     except Exception as e:
         log_error(f"Failed to create project.yml: {e}")
+
+
+def handle_extract_characters(chapter_path: str) -> None:
+    log_info(f"Extracting characters from chapter: {chapter_path}")
+
+    if not os.path.exists(chapter_path):
+        log_error(f"Chapter file not found: {chapter_path}")
+        return
+
+    # Import here to avoid circular imports
+    from extract_characters import extract_characters_from_chapter
+
+    success = extract_characters_from_chapter(chapter_path)
+
+    if success:
+        print("Character extraction completed successfully")
+    else:
+        print("Character extraction failed or incomplete")
+        exit(1)
 
 
 if __name__ == "__main__":
