@@ -297,6 +297,42 @@ def handle_edit_translation(args: argparse.Namespace) -> None:
     log_exit("handle_edit_translation")
 
 
+def handle_create(args: argparse.Namespace) -> None:
+    """Handle the 'character create' command."""
+    log_enter("handle_create")
+
+    try:
+        collection = load_character_collection()
+
+        # Check if character already exists
+        existing = collection.search(args.name)
+        if existing:
+            print(f"Character '{args.name}' already exists.")
+            log_exit("handle_create")
+            return
+
+        # Create new character
+        from models.character import Character
+
+        character = Character(
+            name=args.name,
+            short_names=args.short_name or [],
+            gender=args.gender,
+            characteristics=args.characteristic or [],
+        )
+
+        collection.add_character(character)
+        save_character_collection(collection)
+        print(f"Character '{args.name}' created successfully.")
+
+    except Exception as e:
+        log_error(f"Error creating character: {e}")
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    log_exit("handle_create")
+
+
 def handle_remove(args: argparse.Namespace) -> None:
     """Handle the 'character remove' command."""
     log_enter("handle_remove")
@@ -343,6 +379,13 @@ def setup_character_parser(subparsers):  # type: ignore
     # character list
     character_subparsers.add_parser("list", help="List all characters")  # type: ignore
 
+    # character create <name> [options]
+    create_parser = character_subparsers.add_parser("create", help="Create a new character")  # type: ignore
+    create_parser.add_argument("name", help="Character name")  # type: ignore
+    create_parser.add_argument("--short-name", action="append", help="Add a short name")  # type: ignore
+    create_parser.add_argument("--gender", help="Set gender")  # type: ignore
+    create_parser.add_argument("--characteristic", action="append", help="Add a characteristic")  # type: ignore
+
     # character info <search_query>
     info_parser = character_subparsers.add_parser("info", help="Show detailed character information")  # type: ignore
     info_parser.add_argument("search_query", help="Character name or short name to search for")  # type: ignore
@@ -381,6 +424,8 @@ def handle_character_command(args: argparse.Namespace) -> None:
     """Handle character subcommands."""
     if args.character_command == "list":
         handle_list(args)
+    elif args.character_command == "create":
+        handle_create(args)
     elif args.character_command == "info":
         handle_info(args)
     elif args.character_command == "search":
