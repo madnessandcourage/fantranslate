@@ -1,8 +1,8 @@
 import json
 from unittest.mock import MagicMock, patch
 
-from src.helpers.settings import Settings
-from src.tools.character import (
+from helpers.settings import Settings
+from tools.character import (
     add_character_short_name,
     character_tools,
     create_character,
@@ -10,7 +10,7 @@ from src.tools.character import (
     search_character,
     set_character_gender,
 )
-from src.tools.hello import hello_tool
+from tools.hello import hello_tool
 
 
 def test_hello_tool():
@@ -31,8 +31,8 @@ def test_character_tools():
     assert "GetCharacterTranslation" in names
 
 
-@patch("src.models.character.settings")
-@patch("src.models.character_collection.settings")
+@patch("models.character.settings")
+@patch("models.character_collection.settings")
 def test_create_character(
     mock_collection_settings: MagicMock, mock_character_settings: MagicMock
 ) -> None:
@@ -46,9 +46,9 @@ def test_create_character(
     assert "created successfully" in result
 
 
-@patch("src.tools.character.settings")
-@patch("src.models.character.settings")
-@patch("src.models.character_collection.settings")
+@patch("tools.character.settings")
+@patch("models.character.settings")
+@patch("models.character_collection.settings")
 def test_search_character(
     mock_tools_settings: MagicMock,
     mock_character_settings: MagicMock,
@@ -68,8 +68,8 @@ def test_search_character(
     assert "Frodo Baggins" in result
 
 
-@patch("src.models.character.settings")
-@patch("src.models.character_collection.settings")
+@patch("models.character.settings")
+@patch("models.character_collection.settings")
 def test_add_character_short_name(
     mock_collection_settings: MagicMock, mock_character_settings: MagicMock
 ) -> None:
@@ -85,8 +85,8 @@ def test_add_character_short_name(
     assert "Short name 'Frodo' added" in result
 
 
-@patch("src.models.character.settings")
-@patch("src.models.character_collection.settings")
+@patch("models.character.settings")
+@patch("models.character_collection.settings")
 def test_set_character_gender(
     mock_collection_settings: MagicMock, mock_character_settings: MagicMock
 ) -> None:
@@ -102,9 +102,9 @@ def test_set_character_gender(
     assert "Gender of character 'Frodo Baggins' set to 'female'" in result
 
 
-@patch("src.tools.character.settings")
-@patch("src.models.character.settings")
-@patch("src.models.character_collection.settings")
+@patch("tools.character.settings")
+@patch("models.character.settings")
+@patch("models.character_collection.settings")
 def test_get_character_translation(
     mock_tools_settings: MagicMock,
     mock_character_settings: MagicMock,

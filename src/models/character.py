@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union, cast
 
-from ..helpers.settings import settings
+from helpers.settings import settings
+
 from .translation_string import TranslationString
 
 
