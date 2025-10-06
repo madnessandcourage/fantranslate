@@ -6,6 +6,7 @@ from typing import List
 
 import yaml
 
+from commands.character import handle_character_command, setup_character_parser
 from tracing import (
     LogLevel,
     log_enter,
@@ -51,6 +52,8 @@ def main():
         "chapter_path",
         help="Path to the chapter text file",
     )
+    # Character commands
+    setup_character_parser(subparsers)
 
     args = parser.parse_args()
 
@@ -73,6 +76,8 @@ def main():
         handle_init(args.from_lang, args.to_langs)
     elif args.command == "extract_characters":
         handle_extract_characters(args.chapter_path)
+    elif args.command == "character":
+        handle_character_command(args)
     else:
         parser.print_help()
 
