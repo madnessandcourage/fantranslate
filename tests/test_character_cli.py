@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from commands.character import (
+    handle_create,
     handle_edit,
     handle_info,
     handle_list,
@@ -263,12 +264,62 @@ class TestCharacterCLI:
         assert "Remove character: Alice" in output
         assert "Removal cancelled." in output
 
+    @patch("commands.character.load_character_collection")
+    @patch("commands.character.save_character_collection")
+    def test_create_character_success(self, mock_save, mock_load):
+        """Test character create with successful creation."""
+        mock_collection = MagicMock()
+        mock_collection.search.return_value = None  # Character doesn't exist
+        mock_collection.add_character = MagicMock()
+        mock_load.return_value = mock_collection
+
+        args = MagicMock()
+        args.name = "Alice"
+        args.short_name = ["Al"]
+        args.gender = "female"
+        args.characteristic = ["kind", "brave"]
+
+        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            handle_create(args)
+
+        output = mock_stdout.getvalue()
+        assert "Character 'Alice' created successfully." in output
+        mock_collection.add_character.assert_called_once()
+        mock_save.assert_called_once_with(mock_collection)
+
+    @patch("commands.character.load_character_collection")
+    def test_create_character_duplicate(self, mock_load):
+        """Test character create when character already exists."""
+        mock_collection = MagicMock()
+        mock_character = MagicMock()
+        mock_collection.search.return_value = mock_character  # Character exists
+        mock_load.return_value = mock_collection
+
+        args = MagicMock()
+        args.name = "Alice"
+        args.short_name = None
+        args.gender = None
+        args.characteristic = None
+
+        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            handle_create(args)
+
+        output = mock_stdout.getvalue()
+        assert "Character 'Alice' already exists." in output
+
     @patch("sys.argv", ["fantranslate", "character", "list"])
     @patch("commands.character.handle_list")
     def test_main_character_list_command(self, mock_handle_list):
         """Test that main() calls character list handler."""
         main()
         mock_handle_list.assert_called_once()
+
+    @patch("sys.argv", ["fantranslate", "character", "create", "Alice"])
+    @patch("commands.character.handle_create")
+    def test_main_character_create_command(self, mock_handle_create):
+        """Test that main() calls character create handler."""
+        main()
+        mock_handle_create.assert_called_once()
 
     @patch("sys.argv", ["fantranslate", "character", "invalid"])
     @patch("sys.stderr", new_callable=StringIO)
@@ -306,3 +357,24 @@ class TestCharacterCLI:
         assert args.character_command == "edit"
         assert args.search_query == "Alice"
         assert args.gender == "female"
+
+        # Parse character create command
+        args = parser.parse_args(
+            [
+                "character",
+                "create",
+                "Bob",
+                "--short-name",
+                "Bobby",
+                "--gender",
+                "male",
+                "--characteristic",
+                "brave",
+            ]
+        )
+        assert args.command == "character"
+        assert args.character_command == "create"
+        assert args.name == "Bob"
+        assert args.short_name == ["Bobby"]
+        assert args.gender == "male"
+        assert args.characteristic == ["brave"]
