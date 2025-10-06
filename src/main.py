@@ -18,6 +18,16 @@ from tracing import (
     set_log_level,
 )
 
+from ai import ai, agent
+from tools.character import (
+    add_character_short_name,
+    create_character,
+    get_character_translation,
+    search_character,
+    set_character_gender,
+)
+from tools.hello import hello_tool
+
 
 def main():
     parser = argparse.ArgumentParser(description="FanTranslate CLI")
@@ -114,7 +124,6 @@ def main():
         # Original behavior
         if api_key:
             log_info("API key loaded successfully")
-            from ai import ai
 
             log_enter("ai_call")
             joke = ai("You are a comedian.", "Tell me a funny joke not about science.")
@@ -136,13 +145,6 @@ def handle_character_command(args: argparse.Namespace, api_key: Optional[str]) -
         log_error("API key required for character operations")
         return
 
-    from tools.character import (  # type: ignore
-        add_character_short_name,
-        create_character,
-        search_character,
-        set_character_gender,
-    )
-
     if args.char_command == "create":
         result = create_character(args.name, args.gender)
         print(f"Created character: {result}")
@@ -163,12 +165,6 @@ def handle_demo(api_key: Optional[str]) -> None:
         return
 
     log_info("Running character management demo")
-
-    from tools.character import (  # type: ignore
-        create_character,
-        get_character_translation,
-        search_character,
-    )
 
     # Create a character
     result = create_character("Frodo Baggins", "male")
@@ -193,9 +189,6 @@ def handle_agent_command(agent_name: str, api_key: Optional[str]) -> None:
         return
 
     if agent_name == "demo_agent":
-        from ai import agent
-        from tools.hello import hello_tool
-
         log_info("Running demo agent")
         output, _ = agent(
             system_prompt="You are a helpful assistant that can use tools to greet people.",

@@ -5,7 +5,7 @@ import os
 import sys
 from typing import Any, Callable, Dict
 
-from langchain.schema import BaseMessage
+from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain.tools import BaseTool
 
 
