@@ -130,7 +130,9 @@ def detection_judge(
     # All retries failed
     log_error(f"Failed to get valid JSON response after {max_retries} attempts")
     log_exit("detection_judge")
-    return []
+    raise ValueError(
+        f"AI failed to provide a valid JSON response after {max_retries} attempts"
+    )
 
 
 def extraction_agent(
