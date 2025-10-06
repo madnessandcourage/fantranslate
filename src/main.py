@@ -44,14 +44,6 @@ def main():
         help="Target languages, comma-separated (default: ru)",
     )
 
-    # Extract characters command
-    extract_parser = subparsers.add_parser(
-        "extract_characters", help="Extract characters from a chapter"
-    )
-    extract_parser.add_argument(
-        "chapter_path",
-        help="Path to the chapter text file",
-    )
     # Character commands
     setup_character_parser(subparsers)
 
