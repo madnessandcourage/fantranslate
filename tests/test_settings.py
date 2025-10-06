@@ -4,14 +4,13 @@ from pathlib import Path
 import pytest
 import yaml
 
+import helpers.settings
 from helpers.settings import settings
 
 
 @pytest.fixture(autouse=True)
 def clear_settings_cache():
     # Reset the cached settings before each test
-    import helpers.settings
-
     helpers.settings.__settings = None  # type: ignore
     yield
 

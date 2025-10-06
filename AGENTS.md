@@ -134,6 +134,16 @@ The `AgentExecutor` in `src/ai.py` has `verbose=False` by default. Our custom tr
 
 If LangChain's verbose mode is ever needed for debugging specific LangChain issues, the `verbose` parameter can be temporarily set to `True`, but our custom tracing should be used for all production logging.
 
+## Import Organization
+
+- **All imports must be at the top of the file**: Do not place import statements inside functions, classes, or anywhere else in the code. All imports should be grouped at the beginning of the file, after any module docstrings but before any executable code.
+- **Import order**: Follow the standard Python import order:
+  1. Standard library imports
+  2. Third-party imports
+  3. Local imports (from the current package)
+- **Use isort**: The `./script/lint` command runs `isort` which automatically sorts and organizes imports according to the configuration in `pyproject.toml`.
+- **Avoid conditional imports**: Do not use imports inside `if` statements or try/except blocks unless absolutely necessary for optional dependencies.
+
 ## Conventions
 
 - Use type hints where possible.

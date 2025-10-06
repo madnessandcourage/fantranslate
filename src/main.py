@@ -8,6 +8,16 @@ from typing import Optional
 
 from dotenv import load_dotenv
 
+from ai import agent, ai
+from tools.character import (
+    add_character_short_name,
+    create_character,
+    get_all_characters,
+    get_character_translation,
+    search_character,
+    set_character_gender,
+)
+from tools.hello import hello_tool
 from tracing import (
     LogLevel,
     log_enter,
@@ -117,7 +127,6 @@ def main():
         # Original behavior
         if api_key:
             log_info("API key loaded successfully")
-            from ai import ai
 
             log_enter("ai_call")
             joke = ai("You are a comedian.", "Tell me a funny joke not about science.")
@@ -138,14 +147,6 @@ def handle_character_command(args: argparse.Namespace, api_key: Optional[str]) -
     if not api_key:
         log_error("API key required for character operations")
         return
-
-    from tools.character import (  # type: ignore
-        add_character_short_name,
-        create_character,
-        get_all_characters,
-        search_character,
-        set_character_gender,
-    )
 
     if args.char_command == "create":
         result = create_character(args.name, args.gender)
@@ -171,12 +172,6 @@ def handle_demo(api_key: Optional[str]) -> None:
 
     log_info("Running character management demo")
 
-    from tools.character import (  # type: ignore
-        create_character,
-        get_character_translation,
-        search_character,
-    )
-
     # Create a character
     result = create_character("Frodo Baggins", "male")
     print(f"Created: {result}")
@@ -200,9 +195,6 @@ def handle_agent_command(agent_name: str, api_key: Optional[str]) -> None:
         return
 
     if agent_name == "demo_agent":
-        from ai import agent
-        from tools.hello import hello_tool
-
         log_info("Running demo agent")
         output, _ = agent(
             system_prompt="You are a helpful assistant that can use tools to greet people.",

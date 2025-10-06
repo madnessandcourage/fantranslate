@@ -1,10 +1,12 @@
 import json
 import os
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from ai import agent, ai, yesno
+from main import main
+from tools.hello import hello_tool
 
 
 def test_ai_memoisation():
@@ -16,8 +18,6 @@ def test_ai_memoisation():
         pytest.skip("Skipping memoisation test in recordings mode")
 
     with patch("ai.get_client") as mock_get_client:
-        from unittest.mock import MagicMock
-
         mock_client = MagicMock()
         mock_response = MagicMock()
         mock_response.choices = [MagicMock()]
@@ -55,7 +55,6 @@ def test_ai_memoisation():
 
 def test_agent_basic():
     # Test that the agent function works
-    from tools.hello import hello_tool
 
     # Test the agent with the hello tool
     system_prompt = "You are a helpful assistant. Use tools when appropriate."
@@ -74,7 +73,6 @@ def test_agent_basic():
 
 def test_agent_with_chat_history():
     # Test that previous chat history influences the agent output
-    from tools.hello import hello_tool
 
     system_prompt = "You are a helpful assistant. Use tools when appropriate."
     tools = [hello_tool]
@@ -99,8 +97,6 @@ def test_agent_with_chat_history():
 
 def test_main_runs_without_error():
     # Test that main() runs without error (recording system handles determinism)
-    from main import main
-
     try:
         main()
     except Exception as e:
