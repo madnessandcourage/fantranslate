@@ -12,7 +12,7 @@ from tools.character import (
     search_character_tool,
     set_gender_tool,
 )
-from tracing import log_enter, log_error, log_exit, log_info
+from tracing import log_enter, log_error, log_exit, log_info, log_trace
 
 # Tools needed for character extraction
 extraction_tools = [
@@ -25,13 +25,14 @@ extraction_tools = [
 
 
 def detection_judge(
-    chapter_text: str, existing_characters: CharacterCollection
+    chapter_text: str, existing_characters: CharacterCollection, max_retries: int = 3
 ) -> List[str]:
     """Detect missing characters in a chapter using AI.
 
     Args:
         chapter_text: The full text of the book chapter
         existing_characters: The current character collection
+        max_retries: Maximum number of AI calls to attempt
 
     Returns:
         List of character names that are missing from the collection
@@ -59,44 +60,77 @@ def detection_judge(
         )
         .add("Chapter Text", chapter_text)
         .pipe("detection_judge")
+        .example(
+            in_='Existing characters: - Frodo Baggins (a.k.a Frodo), Chapter text: "Gandalf arrived at the Shire and spoke with Bilbo Baggins about the ring."',
+            out='["Gandalf", "Bilbo Baggins"]',
+        )
+        .example(
+            in_='Existing characters: - Harry Potter, Chapter text: "Hermione Granger and Ron Weasley helped Harry Potter in the library."',
+            out='["Hermione Granger", "Ron Weasley"]',
+        )
+        .example(
+            in_='Existing characters: - John Smith (a.k.a Johnny), Chapter text: "Mary Johnson introduced herself to Johnny at the party."',
+            out='["Mary Johnson"]',
+        )
+        .example(
+            in_='Existing characters: - Frodo Baggins, - Gandalf, Chapter text: "The fellowship consisted of Aragorn, Legolas, and Gimli."',
+            out='["Aragorn", "Legolas", "Gimli"]',
+        )
+        .failure_example(
+            in_='Existing characters: - Harry Potter, Chapter text: "Hermione helped Harry in class."',
+            err='["Hermione"]\n\nHermione Granger is a new character mentioned in the chapter.',
+        )
+        .failure_example(
+            in_='Existing characters: - Frodo, Chapter text: "Samwise Gamgee carried the ring."',
+            err='Here are the missing characters: ["Samwise Gamgee"]',
+        )
+        .failure_example(
+            in_='Existing characters: - John Smith, Chapter text: "The meeting happened in Conference Room A."',
+            err='["Conference Room A"]',
+        )
     )
 
     system_prompt = context.build()
     user_prompt = f"Chapter text:\n{chapter_text}"
 
-    # Call AI
-    response = ai(system_prompt, user_prompt)
+    for attempt in range(max_retries):
+        log_trace("Attempt", str(attempt + 1))
 
-    if response is None:
-        log_info("AI returned None, returning empty list")
-        log_exit("detection_judge")
-        return []
+        # Call AI
+        response = ai(system_prompt, user_prompt)
 
-    try:
-        # Parse JSON response
-        missing_characters = json.loads(response.strip())
-        if not isinstance(missing_characters, list):
-            log_info(f"AI response is not a list: {response}")
+        if response is None:
+            log_info("AI returned None, continuing to next attempt")
+            continue
+
+        try:
+            # Parse JSON response
+            missing_characters = json.loads(response.strip())
+            if not isinstance(missing_characters, list):
+                log_info(f"AI response is not a list: {response}")
+                continue
+
+            # Filter to ensure they are strings
+            missing_characters = [
+                str(name)
+                for name in missing_characters
+                if isinstance(name, (str, int, float))
+            ]
+
+            log_info(
+                f"Detected {len(missing_characters)} missing characters: {missing_characters}"
+            )
             log_exit("detection_judge")
-            return []
+            return missing_characters
 
-        # Filter to ensure they are strings
-        missing_characters = [
-            str(name)
-            for name in missing_characters
-            if isinstance(name, (str, int, float))
-        ]
+        except json.JSONDecodeError as e:
+            log_info(f"Failed to parse AI response as JSON: {response}, error: {e}")
+            continue
 
-        log_info(
-            f"Detected {len(missing_characters)} missing characters: {missing_characters}"
-        )
-        log_exit("detection_judge")
-        return missing_characters
-
-    except json.JSONDecodeError as e:
-        log_info(f"Failed to parse AI response as JSON: {response}, error: {e}")
-        log_exit("detection_judge")
-        return []
+    # All retries failed
+    log_error(f"Failed to get valid JSON response after {max_retries} attempts")
+    log_exit("detection_judge")
+    return []
 
 
 def extraction_agent(
