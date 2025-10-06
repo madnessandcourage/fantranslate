@@ -143,6 +143,76 @@ If LangChain's verbose mode is ever needed for debugging specific LangChain issu
   3. Local imports (from the current package)
 - **Use isort**: The `./script/lint` command runs `isort` which automatically sorts and organizes imports according to the configuration in `pyproject.toml`.
 - **Avoid conditional imports**: Do not use imports inside `if` statements or try/except blocks unless absolutely necessary for optional dependencies.
+- **Avoid relative imports**: Do not use relative imports (imports starting with `.`). Configure PYTHONPATH to ensure imports work consistently between app and tests. Imports should NOT contain `src` - use absolute imports from the project root.
+
+## Testing Best Practices
+
+- **Never skip tests**: All tests must be active and passing. If tests are being skipped, unskip and fix them immediately.
+- **AI must write tests**: Always write comprehensive tests for new code, especially for AI-powered functions.
+- **AI must run tests**: Always run `./script/test` before finishing any task to ensure tests pass.
+- **Test AI functions thoroughly**: When testing AI functions, ensure chat history actually influences output by testing with and without history.
+
+## AI Prompt Engineering
+
+- **Use ContextManager for prompt composition**: Build complex AI prompts using immutable ContextManager patterns with sections, wrapped content, examples, and failure examples.
+- **Implement retry logic**: AI calls should include retry mechanisms (default 3 retries) for unreliable responses.
+- **Stabilize prompts with examples**: Provide good and bad examples in prompts to improve AI response consistency.
+- **Use specific response formats**: For AI judges, require exact formats like "YES" or "NO, <reason>" with no additional prefixes.
+- **Prefer XML for AI data**: When serializing data for AI consumption, prefer XML over JSON as AIs handle XML better.
+
+## API Design Patterns
+
+- **Design for dual interfaces**: APIs should work for both Python code and AI tools (e.g., character management functions).
+- **Use tuple returns**: Functions returning multiple related values should return tuples (e.g., `(bool, reason)` for yes/no helpers).
+- **Implement immutability**: Use immutable patterns where appropriate (e.g., ContextManager returns new instances).
+- **Validate constraints**: Implement proper validation for domain constraints (e.g., language availability in TranslationString).
+- **Implement fuzzy search**: Provide fuzzy search capabilities with configurable typo tolerance.
+
+## Data Modeling Conventions
+
+- **Custom equality behavior**: Implement domain-specific equality for objects (e.g., TranslationString equality across languages).
+- **Serialization methods**: Use `to_dict` / `from_dict` methods for object serialization.
+- **Confidence levels**: Include confidence scores for uncertain data (e.g., character characteristics).
+- **Language validation**: Validate language constraints and provide clear error messages for violations.
+
+## Error Handling
+
+- **Fail fast on configuration**: Immediately throw errors when required configuration is missing or invalid.
+- **Clear error messages**: Provide specific, actionable error messages for constraint violations.
+- **No silent failures**: Never silently ignore errors or constraints.
+
+## Performance Optimization
+
+- **Implement fast search**: Use optimized fuzzy search algorithms for performance-critical operations.
+- **Memoization**: Use memoization decorators for expensive operations, especially AI calls.
+- **Dependency caching**: Use CI caching mechanisms to reduce build times (e.g., GitHub Actions dependency caching).
+- **Profile bottlenecks**: Identify and optimize performance bottlenecks (e.g., 25+ second dependency installations).
+
+## CLI Design
+
+- **Use argparse**: Implement command-line interfaces using argparse for proper argument parsing.
+- **Debug levels**: Provide multiple verbosity levels (-v for debug, -vv for trace).
+- **Extensible commands**: Design command structures that can be easily extended with subcommands.
+- **Standard script infrastructure**: Use consistent script patterns (./script/setup, ./script/test, ./script/lint).
+
+## LangChain Integration
+
+- **Custom tracing over verbose**: Disable LangChain's verbose mode and use custom tracing framework for better control.
+- **Tool design**: Create tools that work seamlessly with agentic workflows.
+- **Dual interfaces**: Ensure functionality is accessible through both Python APIs and LangChain tools.
+
+## Project Infrastructure
+
+- **Editable installs**: Use `pip install -e .` for development to enable live code changes.
+- **Standardized scripts**: Implement consistent script infrastructure with proper flags (-e for editable installs).
+- **Gitignore patterns**: Use specific gitignore patterns for project artifacts (playground folders, AI recordings, etc.).
+- **Code organization**: Split large functionality into appropriate subdirectories (src/commands/, src/tools/, etc.).
+
+## Security
+
+- Never introduce code that exposes secrets or keys.
+- Store API keys in .env files with proper loading mechanisms.
+- Follow Python best practices for security.
 
 ## Conventions
 
