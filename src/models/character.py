@@ -221,6 +221,33 @@ Keep the summary concise but informative."""
         xml_parts.append("</character>")
         return "\n".join(xml_parts)
 
+    def has_untranslated_parts(self, language: str) -> bool:
+        """Check if the character has any untranslated parts for the given language."""
+        # Check name
+        if not hasattr(self.name, language) or getattr(self.name, language) is None:
+            return True
+
+        # Check short names
+        for short_name in self.short_names:
+            if (
+                not hasattr(short_name, language)
+                or getattr(short_name, language) is None
+            ):
+                return True
+
+        # Check gender
+        if self.gender and (
+            not hasattr(self.gender, language) or getattr(self.gender, language) is None
+        ):
+            return True
+
+        # Check characteristics
+        for char in self.characteristics:
+            if not hasattr(char.text, language) or getattr(char.text, language) is None:
+                return True
+
+        return False
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "name": self.name.to_dict(),
