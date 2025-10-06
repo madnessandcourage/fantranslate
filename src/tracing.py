@@ -82,12 +82,12 @@ def log_llm_ai(message: str) -> None:
         print(f"{_get_indent()}LLM_AI: {trimmed}", file=sys.stderr)
 
 
-def log_llm_tool(tool: str, *args: Any) -> None:
+def log_llm_tool(tool: str, **kwargs: Any) -> None:
     if _should_log(LogLevel.DEBUG):
-        formatted_args = " ".join(str(arg) for arg in args)
         message = f"Tool used: {tool}"
-        if formatted_args:
-            message += f" {formatted_args}"
+        if kwargs:
+            args_str = str(kwargs)
+            message += f" {args_str}"
         print(f"{_get_indent()}LLM_TOOL: {message}", file=sys.stderr)
 
 
