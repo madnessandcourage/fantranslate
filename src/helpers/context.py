@@ -1,6 +1,8 @@
 import os
 from typing import Dict, List, Optional
 
+from helpers.settings import RESOURCE_DIR
+
 
 class Context:
     def __init__(self, parts: Optional[List[Dict[str, str]]] = None) -> None:
@@ -24,10 +26,7 @@ class Context:
 
     def pipe(self, filename: str) -> "Context":
         """Read content from a markdown file in the prompts directory and add it to context."""
-        # Calculate the project root directory relative to this file's location
-        # src/helpers/context.py -> src/helpers -> src -> project_root
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-        filepath = os.path.join(base_dir, "prompts", f"{filename}.md")
+        filepath = os.path.join(RESOURCE_DIR, "prompts", f"{filename}.md")
         with open(filepath, "r", encoding="utf-8") as f:
             content = f.read()
         new_parts = self.parts + [{"type": "pipe", "content": content}]
