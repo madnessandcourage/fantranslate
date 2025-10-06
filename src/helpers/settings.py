@@ -6,6 +6,9 @@ import yaml
 
 DEFAULT_CHARACTERS_STORAGE = "characters.yml"
 
+# Directory containing application resource files (prompts, etc.)
+RESOURCE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
 
 @dataclass
 class Settings:

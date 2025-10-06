@@ -1,6 +1,8 @@
 import os
 from typing import Dict, List, Optional
 
+from helpers.settings import RESOURCE_DIR
+
 
 class Context:
     def __init__(self, parts: Optional[List[Dict[str, str]]] = None) -> None:
@@ -24,7 +26,7 @@ class Context:
 
     def pipe(self, filename: str) -> "Context":
         """Read content from a markdown file in the prompts directory and add it to context."""
-        filepath = os.path.join("prompts", f"{filename}.md")
+        filepath = os.path.join(RESOURCE_DIR, "prompts", f"{filename}.md")
         with open(filepath, "r", encoding="utf-8") as f:
             content = f.read()
         new_parts = self.parts + [{"type": "pipe", "content": content}]
