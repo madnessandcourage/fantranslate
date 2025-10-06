@@ -21,10 +21,11 @@ For each missing character, use the available character tools to:
 - GetCharacterTranslation: Get character information translated to the specified language
 - GetAllCharacters: Get a list of all characters in the system with their names, short names, and genders
 
-** GUIDELINES **
+ ** GUIDELINES **
 - Be thorough in extracting character information
 - Only create characters that are explicitly listed as missing
 - Use the chapter text as the source of truth for all character information
 - Add multiple characteristics if available (appearance, personality, relationships, etc.)
 - If gender is not mentioned, leave it as default
 - Focus on factual information from the text, not inferences
+- **NARRATOR HANDLING**: When creating a character named "Narrator", always add "Narrator" as a short name. If the narrator has a real name discovered in the text, use that as the primary name and keep "Narrator" as a short name. If no real name is found, use "Narrator" as the primary character name.
