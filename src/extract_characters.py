@@ -156,13 +156,28 @@ def completeness_judge(
     """
     log_enter("completeness_judge")
 
+    # Build the prompt using Context
+    context = (
+        Context()
+        .add(
+            "Missing Characters",
+            f"Characters that should have been extracted: {missing_characters}",
+        )
+        .add(
+            "All Characters",
+            f"Characters currently in the collection: {all_characters}",
+        )
+        .pipe("completeness_judge")
+    )
+
+    system_prompt = context.build()
     user_prompt = (
-        f"Missing characters that should have been extracted: {missing_characters}\n"
-        f"All characters currently in the collection: {all_characters}\n\n"
         f"Have all the missing characters been successfully added to the collection?"
     )
 
-    is_complete, reason = yesno(user_prompt)
+    is_complete, reason = yesno(
+        user_prompt, system_prompt=system_prompt, skip_examples=True
+    )
 
     if is_complete:
         log_info("Completeness check passed: all missing characters extracted")
@@ -203,22 +218,33 @@ def extract_characters_from_chapter(chapter_path: str) -> bool:
             log_exit("extract_characters_from_chapter")
             return True
 
-        # Step 2: Extraction agent - extract missing characters
-        _, all_characters = extraction_agent(missing_characters, chapter_text)
-        log_info("Character extraction completed")
+        # Step 2-3: Extraction with retry loop (up to 3 attempts)
+        max_attempts = 3
+        is_complete = False
+        for attempt in range(max_attempts):
+            log_info(f"Extraction attempt {attempt + 1}/{max_attempts}")
 
-        # Step 3: Completeness judge - verify all were extracted
-        is_complete = completeness_judge(missing_characters, all_characters)
+            # Extract characters
+            _, all_characters = extraction_agent(missing_characters, chapter_text)
+            log_info("Character extraction completed")
+
+            # Check completeness
+            is_complete = completeness_judge(missing_characters, all_characters)
+
+            if is_complete:
+                log_info("Character extraction completed successfully")
+                break
+            else:
+                log_info(f"Completeness check failed on attempt {attempt + 1}")
+                if attempt < max_attempts - 1:
+                    log_info("Retrying extraction...")
+                else:
+                    log_info("Maximum attempts reached, extraction incomplete")
 
         # Save the updated collection
         from helpers.settings import DEFAULT_CHARACTERS_STORAGE
 
         character_collection.save(DEFAULT_CHARACTERS_STORAGE)
-
-        if is_complete:
-            log_info("Character extraction completed successfully")
-        else:
-            log_info("Character extraction incomplete")
 
         log_exit("extract_characters_from_chapter")
         return is_complete
