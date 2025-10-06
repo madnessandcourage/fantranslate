@@ -188,42 +188,42 @@ def _get_all_characters_with_logging(args: GetAllCharactersArgs) -> str:
     return get_all_characters()
 
 
-search_character_tool = StructuredTool.from_function(
+search_character_tool = StructuredTool.from_function(  # type: ignore[reportUnknownMemberType] # LangChain type stubs are incomplete
     func=_search_character_with_logging,
     name="SearchCharacter",
     description="Search for an existing character by name or short name using fuzzy matching.",
     args_schema=SearchCharacterArgs,
 )
 
-create_character_tool = StructuredTool.from_function(
+create_character_tool = StructuredTool.from_function(  # type: ignore[reportUnknownMemberType] # LangChain type stubs are incomplete
     func=_create_character_with_logging,
     name="CreateCharacter",
     description="Create a new character with the provided information.",
     args_schema=CreateCharacterArgs,
 )
 
-add_short_name_tool = StructuredTool.from_function(
+add_short_name_tool = StructuredTool.from_function(  # type: ignore[reportUnknownMemberType] # LangChain type stubs are incomplete
     func=_add_short_name_with_logging,
     name="AddCharacterShortName",
     description="Add a short name to an existing character.",
     args_schema=AddShortNameArgs,
 )
 
-set_gender_tool = StructuredTool.from_function(
+set_gender_tool = StructuredTool.from_function(  # type: ignore[reportUnknownMemberType] # LangChain type stubs are incomplete
     func=_set_gender_with_logging,
     name="SetCharacterGender",
     description="Set the gender of an existing character.",
     args_schema=SetGenderArgs,
 )
 
-get_character_translation_tool = StructuredTool.from_function(
+get_character_translation_tool = StructuredTool.from_function(  # type: ignore[reportUnknownMemberType] # LangChain type stubs are incomplete
     func=_get_translation_with_logging,
     name="GetCharacterTranslation",
     description="Get character information translated to the specified language.",
     args_schema=GetTranslationArgs,
 )
 
-get_all_characters_tool = StructuredTool.from_function(
+get_all_characters_tool = StructuredTool.from_function(  # type: ignore[reportUnknownMemberType] # LangChain type stubs are incomplete
     func=_get_all_characters_with_logging,
     name="GetAllCharacters",
     description="Get a list of all characters in the system with their names, short names, and genders.",

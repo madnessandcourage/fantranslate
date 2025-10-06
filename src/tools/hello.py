@@ -14,7 +14,7 @@ def get_hello_target(args: HelloArgs) -> str:
     return "World"
 
 
-hello_tool = StructuredTool.from_function(
+hello_tool = StructuredTool.from_function(  # type: ignore[reportUnknownMemberType] # LangChain type stubs are incomplete
     func=get_hello_target,
     name="HelloTool",
     description="Use this tool to find out who to say hello to. It takes no parameters.",
