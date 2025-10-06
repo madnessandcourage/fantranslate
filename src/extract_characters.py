@@ -128,10 +128,6 @@ def extraction_agent(
     """
     log_enter("extraction_agent")
 
-    # Read the extraction agent prompt from file
-    with open("prompts/extraction_agent.md", "r", encoding="utf-8") as f:
-        prompt_content = f.read()
-
     # Build the prompt using Context
     context = (
         Context()
@@ -141,7 +137,7 @@ def extraction_agent(
             + "\n".join(f"- {name}" for name in missing_characters),
         )
         .add("Chapter Text", chapter_text)
-        .wrap("Prompt", prompt_content)
+        .pipe("extraction_agent")
     )
 
     system_prompt = context.build()
