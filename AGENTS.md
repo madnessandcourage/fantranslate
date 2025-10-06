@@ -203,9 +203,9 @@ If LangChain's verbose mode is ever needed for debugging specific LangChain issu
 
 ## Project Infrastructure
 
-- **Editable installs**: Use `pip install -e .` for development to enable live code changes.
+- **Venv management**: Use `./script/setup` to setup venv and install dependencies, `./script/fantranslate` to run, `./script/lint` to lint, etc. No direct pip installs - only through scripts.
 - **Standardized scripts**: Implement consistent script infrastructure with proper flags (-e for editable installs).
-- **Gitignore patterns**: Use specific gitignore patterns for project artifacts (playground folders, AI recordings, etc.).
+- **Gitignore patterns**: Use specific gitignore patterns for project artifacts (playground folders, etc.). **NEVER** put ai_recordings into .gitignore.
 - **Code organization**: Split large functionality into appropriate subdirectories (src/commands/, src/tools/, etc.).
 
 ## Security
