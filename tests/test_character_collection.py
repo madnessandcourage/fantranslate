@@ -116,3 +116,20 @@ def test_get_all_characters():
     assert all_characters[1].name == "Bob"
     assert all_characters[1].short_names == []
     assert all_characters[1].gender == "male"
+
+
+def test_has_untranslated_parts():
+    # Character with no translations should have untranslated parts
+    char = Character("Alice", short_names=["Al"], gender="female")
+    assert char.has_untranslated_parts("ru") is True
+
+    # Character with characteristics should have untranslated parts
+    char.add_characteristic("tall and blonde")
+    assert char.has_untranslated_parts("ru") is True
+
+
+def test_translate_all_characters_no_characters():
+    """Test translate_all_characters with empty collection."""
+    collection = CharacterCollection()
+    count = collection.translate_all_characters("test content")
+    assert count == 0

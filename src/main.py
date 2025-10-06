@@ -56,6 +56,16 @@ def main():
         help="Path to the chapter text file",
     )
 
+    # Translate all characters command
+    translate_all_parser = subparsers.add_parser(
+        "translate_all_characters",
+        help="Translate all characters with untranslated parts",
+    )
+    translate_all_parser.add_argument(
+        "chapter_path",
+        help="Path to the chapter text file for translation context",
+    )
+
     args = parser.parse_args()
 
     # Set log level based on verbosity
@@ -77,10 +87,10 @@ def main():
         handle_init(args.from_lang, args.to_langs)
     elif args.command == "extract_characters":
         handle_extract_characters(args.chapter_path)
+    elif args.command == "translate_all_characters":
+        handle_translate_all_characters(args.chapter_path)
     elif args.command == "character":
         handle_character_command(args)
-    elif args.command == "extract_characters":
-        handle_extract_characters(args.chapter_path)
     else:
         parser.print_help()
 
@@ -141,6 +151,38 @@ def handle_extract_characters(chapter_path: str) -> None:
     else:
         print("Character extraction failed or incomplete")
         exit(1)
+
+
+def handle_translate_all_characters(chapter_path: str) -> None:
+    log_info(
+        f"Translating all characters with untranslated parts using chapter: {chapter_path}"
+    )
+
+    if not os.path.exists(chapter_path):
+        log_error(f"Chapter file not found: {chapter_path}")
+        return
+
+    # Import here to avoid circular imports
+    from commands.character import load_character_collection, save_character_collection
+
+    collection = load_character_collection()
+
+    if not collection.characters:
+        print("No characters found to translate.")
+        return
+
+    # Read chapter contents
+    with open(chapter_path, "r", encoding="utf-8") as f:
+        chapter_contents = f.read()
+
+    # Translate all characters with untranslated parts
+    translated_count = collection.translate_all_characters(chapter_contents)
+
+    if translated_count > 0:
+        save_character_collection(collection)
+        print(f"Successfully translated {translated_count} character(s).")
+    else:
+        print("No characters needed translation.")
 
 
 if __name__ == "__main__":

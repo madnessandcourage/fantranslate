@@ -61,6 +61,33 @@ class CharacterCollection:
         """Get all characters translated to the specified language."""
         return [char.get_translated(language) for char in self.characters]
 
+    def translate_all_characters(self, chapter_contents: str) -> int:
+        """Translate all characters that have untranslated parts using AI.
+
+        Args:
+            chapter_contents: The chapter text to use as context for translation
+
+        Returns:
+            The number of characters that were translated
+        """
+        from helpers.settings import settings
+        from tracing import log_enter, log_exit, log_info
+
+        log_enter("translate_all_characters")
+
+        s = settings()
+        translated_count = 0
+
+        for character in self.characters:
+            if character.has_untranslated_parts(s.translate_to):
+                log_info(f"Translating character: {character.name.original_text}")
+                character.translate(chapter_contents)
+                translated_count += 1
+
+        log_info(f"Translated {translated_count} characters")
+        log_exit("translate_all_characters")
+        return translated_count
+
     def to_dict(self) -> List[Dict[str, Any]]:
         return [char.to_dict() for char in self.characters]
 
