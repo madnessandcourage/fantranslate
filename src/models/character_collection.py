@@ -25,6 +25,10 @@ class CharacterCollection:
         for character in self.characters:
             self._add_to_index(character)
 
+    def rebuild_index(self):
+        """Public method to rebuild the search index."""
+        self._rebuild_index()
+
     def search(self, query: str) -> Optional[Character]:
         """Search for a character by name or short name with fuzzy matching."""
         if not query:
