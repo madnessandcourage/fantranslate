@@ -3,9 +3,9 @@ from typing import List
 
 from langchain.tools import Tool
 
-from ..helpers.settings import settings
-from ..models.character import Character, TranslatedCharacter
-from ..models.character_collection import CharacterCollection
+from helpers.settings import settings
+from models.character import Character, TranslatedCharacter
+from models.character_collection import CharacterCollection
 
 # Global character collection
 character_collection = CharacterCollection()

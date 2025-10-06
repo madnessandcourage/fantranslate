@@ -1,5 +1,5 @@
-from src.helpers.context import Context
-from src.helpers.fuzzy import create_fuzzy_index
+from helpers.context import Context
+from helpers.fuzzy import create_fuzzy_index
 
 
 def test_fuzzy_index_basic():

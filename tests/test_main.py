@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.ai import agent, ai, yesno
+from ai import agent, ai, yesno
 
 
 def test_ai_memoisation():
@@ -15,7 +15,7 @@ def test_ai_memoisation():
     if not os.getenv("OPENROUTER_API_KEY"):
         pytest.skip("Skipping memoisation test in recordings mode")
 
-    with patch("src.ai.get_client") as mock_get_client:
+    with patch("ai.get_client") as mock_get_client:
         from unittest.mock import MagicMock
 
         mock_client = MagicMock()
@@ -55,7 +55,7 @@ def test_ai_memoisation():
 
 def test_agent_basic():
     # Test that the agent function works
-    from src.tools.hello import hello_tool
+    from tools.hello import hello_tool
 
     # Test the agent with the hello tool
     system_prompt = "You are a helpful assistant. Use tools when appropriate."
@@ -74,7 +74,7 @@ def test_agent_basic():
 
 def test_agent_with_chat_history():
     # Test that previous chat history influences the agent output
-    from src.tools.hello import hello_tool
+    from tools.hello import hello_tool
 
     system_prompt = "You are a helpful assistant. Use tools when appropriate."
     tools = [hello_tool]
@@ -99,7 +99,7 @@ def test_agent_with_chat_history():
 
 def test_main_runs_without_error():
     # Test that main() runs without error (recording system handles determinism)
-    from src.main import main
+    from main import main
 
     try:
         main()
@@ -109,7 +109,7 @@ def test_main_runs_without_error():
 
 def test_yesno_yes_response():
     """Test yesno function with YES response."""
-    with patch("src.ai.ai") as mock_ai:
+    with patch("ai.ai") as mock_ai:
         mock_ai.return_value = "YES"
         result, reason = yesno("Is 2 + 2 = 4?")
         assert result is True
@@ -118,7 +118,7 @@ def test_yesno_yes_response():
 
 def test_yesno_no_response():
     """Test yesno function with NO response."""
-    with patch("src.ai.ai") as mock_ai:
+    with patch("ai.ai") as mock_ai:
         mock_ai.return_value = "NO, because 2 + 2 = 5"
         result, reason = yesno("Is 2 + 2 = 5?")
         assert result is False
@@ -127,7 +127,7 @@ def test_yesno_no_response():
 
 def test_yesno_retry_on_invalid():
     """Test yesno function retries on invalid response."""
-    with patch("src.ai.ai") as mock_ai:
+    with patch("ai.ai") as mock_ai:
         # First two calls return invalid responses, third returns valid
         mock_ai.side_effect = ["Maybe", "I think YES", "YES"]
         result, reason = yesno("Is the sky blue?")
@@ -138,16 +138,18 @@ def test_yesno_retry_on_invalid():
 
 def test_yesno_max_retries_exceeded():
     """Test yesno function raises error after max retries."""
-    with patch("src.ai.ai") as mock_ai:
+    with patch("ai.ai") as mock_ai:
         mock_ai.return_value = "Invalid response"
-        with pytest.raises(ValueError, match="AI failed to provide a valid YES/NO response"):
+        with pytest.raises(
+            ValueError, match="AI failed to provide a valid YES/NO response"
+        ):
             yesno("Is water wet?", max_retries=2)
         assert mock_ai.call_count == 2
 
 
 def test_yesno_none_response():
     """Test yesno function handles None response from ai."""
-    with patch("src.ai.ai") as mock_ai:
+    with patch("ai.ai") as mock_ai:
         mock_ai.side_effect = [None, None, "YES"]
         result, reason = yesno("Is fire hot?")
         assert result is True

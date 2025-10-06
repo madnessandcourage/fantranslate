@@ -1,7 +1,8 @@
 from typing import Any, Dict, List, Optional
 
-from ..helpers.fuzzy import FuzzyIndex
-from ..helpers.settings import settings  # type: ignore
+from helpers.fuzzy import FuzzyIndex
+from helpers.settings import settings  # type: ignore
+
 from .character import Character, TranslatedCharacter
 
 

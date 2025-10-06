@@ -1,6 +1,6 @@
 import pytest
 
-from src.models.translation_string import TranslationString
+from models.translation_string import TranslationString
 
 
 def test_initialization():

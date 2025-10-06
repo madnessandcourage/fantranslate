@@ -4,15 +4,15 @@ from pathlib import Path
 import pytest
 import yaml
 
-from src.helpers.settings import settings
+from helpers.settings import settings
 
 
 @pytest.fixture(autouse=True)
 def clear_settings_cache():
     # Reset the cached settings before each test
-    import src.helpers.settings
+    import helpers.settings
 
-    src.helpers.settings.__settings = None  # type: ignore
+    helpers.settings.__settings = None  # type: ignore
     yield
 
 
