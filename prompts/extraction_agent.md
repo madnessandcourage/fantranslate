@@ -14,7 +14,21 @@ For each missing character, use the available character tools to:
 4. Extract and add characteristics (descriptions, traits, relationships) from the text
 
 ** SPECIAL HANDLING: NARRATOR CHARACTERS **
-If a character appears to be the narrator of the story (e.g., first-person narration where the character refers to themselves as "I"), automatically add "Narrator" as one of their short names using the AddCharacterShortName tool.
+Analyze the chapter text to determine if any of the missing characters are narrators. If a character appears to be the narrator, automatically add "Narrator" as one of their short names using the AddCharacterShortName tool.
+
+** DETECTING NARRATOR CHARACTERS **
+Look for these patterns in the chapter text:
+- First-person narration: The character uses "I", "my", "me", "we", "our", "us" to refer to themselves
+- Third-person limited: The story focuses heavily on one character's thoughts, feelings, and perspective
+- The character appears in most scenes and has detailed internal monologue
+- The character is the central figure around whom the plot revolves
+- The narrative voice matches the character's personality and knowledge
+
+** PROCESSING NARRATOR CHARACTERS **
+When you identify a narrator character:
+1. Create the character normally with their full information
+2. Immediately use AddCharacterShortName to add "Narrator" as a short name
+3. Continue with normal character extraction (gender, characteristics, etc.)
 
 ** AVAILABLE TOOLS **
 - SearchCharacter: Search for an existing character by name or short name using fuzzy matching
