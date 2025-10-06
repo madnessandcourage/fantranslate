@@ -9,6 +9,9 @@ You are a character detection judge. Your task is to analyze a book chapter and 
 ** TASK **
 Extract a list of character names that appear in the chapter but are NOT in the existing character collection. Only include names that clearly refer to characters (people, not places, objects, etc.).
 
+** SPECIAL CASE: NARRATOR CHARACTERS **
+If the narrator appears to be one of the characters in the story (e.g., first-person narration where "I" refers to a character), include that character's name in the list. The extraction process will handle adding "Narrator" as a short name for such characters.
+
 ** OUTPUT FORMAT **
 You must return ONLY a valid JSON array of strings, where each string is a character name found in the chapter that is missing from the collection. Do not include any other text, explanations, or formatting.
 
@@ -28,3 +31,4 @@ Example output:
 - Do not include place names, object names, or abstract concepts
 - If a character is already in the collection (by any of their names or short names), do not include them
 - Be thorough but avoid false positives
+- For narrator characters, include their actual name (not "Narrator") in the output list

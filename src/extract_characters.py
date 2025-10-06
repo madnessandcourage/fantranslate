@@ -1,4 +1,5 @@
 import json
+import re
 from typing import List, Tuple
 
 from ai import agent, ai, yesno
@@ -22,6 +23,50 @@ extraction_tools = [
     set_gender_tool,
     get_all_characters_tool,
 ]
+
+
+def detect_narrator_characters(
+    missing_characters: List[str], chapter_text: str
+) -> List[str]:
+    """Detect which missing characters are narrators based on the chapter text.
+
+    Args:
+        missing_characters: List of character names to check
+        chapter_text: The full text of the book chapter
+
+    Returns:
+        List of character names that appear to be narrators
+    """
+    log_enter("detect_narrator_characters")
+
+    narrator_characters: List[str] = []
+
+    # Simple heuristic: if a character is referred to with first-person pronouns
+    # in contexts where they are the subject, they might be the narrator
+    for character_name in missing_characters:
+        # Look for patterns like "I [verb]" or "my [noun]" near the character name
+        # This is a simple heuristic - the AI agent will make the final determination
+        name_pattern = re.escape(character_name)
+        first_person_patterns = [
+            rf"{name_pattern}.*?\bI\b",
+            rf"\bI\b.*?\b{re.escape(character_name.split()[0])}\b",  # First name after "I"
+            rf"{name_pattern}.*?\bmy\b",
+            rf"{name_pattern}.*?\bme\b",
+        ]
+
+        is_potential_narrator = False
+        for pattern in first_person_patterns:
+            if re.search(pattern, chapter_text, re.IGNORECASE):
+                is_potential_narrator = True
+                break
+
+        if is_potential_narrator:
+            narrator_characters.append(character_name)
+            log_info(f"Detected potential narrator character: {character_name}")
+
+    log_info(f"Detected {len(narrator_characters)} potential narrator characters")
+    log_exit("detect_narrator_characters")
+    return narrator_characters
 
 
 def detection_judge(
@@ -149,14 +194,24 @@ def extraction_agent(
     """
     log_enter("extraction_agent")
 
+    # Detect potential narrator characters
+    narrator_characters = detect_narrator_characters(missing_characters, chapter_text)
+
     # Build the prompt using Context
+    missing_chars_text = (
+        "The following characters need to be extracted from the chapter:\n"
+        + "\n".join(f"- {name}" for name in missing_characters)
+    )
+
+    if narrator_characters:
+        missing_chars_text += (
+            f"\n\n**NARRATOR CHARACTERS**: The following characters appear to be narrators and should have 'Narrator' added as a short name:\n"
+            + "\n".join(f"- {name}" for name in narrator_characters)
+        )
+
     context = (
         Context()
-        .add(
-            "Missing Characters",
-            "The following characters need to be extracted from the chapter:\n"
-            + "\n".join(f"- {name}" for name in missing_characters),
-        )
+        .add("Missing Characters", missing_chars_text)
         .add("Chapter Text", chapter_text)
         .pipe("extraction_agent")
     )

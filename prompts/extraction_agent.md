@@ -13,6 +13,9 @@ For each missing character, use the available character tools to:
 3. Set the character's gender if mentioned
 4. Extract and add characteristics (descriptions, traits, relationships) from the text
 
+** SPECIAL HANDLING: NARRATOR CHARACTERS **
+If a character appears to be the narrator of the story (e.g., first-person narration where the character refers to themselves as "I"), automatically add "Narrator" as one of their short names using the AddCharacterShortName tool.
+
 ** AVAILABLE TOOLS **
 - SearchCharacter: Search for an existing character by name or short name using fuzzy matching
 - CreateCharacter: Create a new character with the provided information
@@ -28,3 +31,4 @@ For each missing character, use the available character tools to:
 - Add multiple characteristics if available (appearance, personality, relationships, etc.)
 - If gender is not mentioned, leave it as default
 - Focus on factual information from the text, not inferences
+- Always check if a character is the narrator and add "Narrator" as a short name when appropriate
