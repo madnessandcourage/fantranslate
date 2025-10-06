@@ -50,8 +50,13 @@ def detection_judge(
             display = f"- {full_name}"
         existing_chars_display.append(display)  # type: ignore
 
-    # Build the prompt using Context
-    context = (
+    # Build the system prompt using Context
+    system_context = Context().pipe("detection_judge")
+
+    system_prompt = system_context.build()
+
+    # Build the user prompt using Context
+    user_context = (
         Context()
         .add(
             "Existing Characters",
@@ -59,7 +64,18 @@ def detection_judge(
             + "\n".join(existing_chars_display),  # type: ignore
         )
         .add("Chapter Text", chapter_text)
-        .pipe("detection_judge")
+        .add(
+            "Output Requirements",
+            "You must return ONLY a valid JSON array of strings, where each string is a character name found in the chapter that is missing from the collection. Do not include any other text, explanations, or formatting.\n\n"
+            "Example output:\n"
+            '["John Smith", "Mary Johnson", "Dr. Roberts"]\n\n'
+            "CRITICAL REQUIREMENTS:\n"
+            "- Response must be valid JSON that can be parsed by json.loads()\n"
+            "- Response must be a JSON array (starts with [ and ends with ])\n"
+            "- Each element must be a string (enclosed in quotes)\n"
+            "- No trailing commas, comments, or extra text\n"
+            "- If no characters are found, return an empty array: []",
+        )
         .example(
             in_='Existing characters: - Frodo Baggins (a.k.a Frodo), Chapter text: "Gandalf arrived at the Shire and spoke with Bilbo Baggins about the ring."',
             out='["Gandalf", "Bilbo Baggins"]',
@@ -90,8 +106,7 @@ def detection_judge(
         )
     )
 
-    system_prompt = context.build()
-    user_prompt = f"Chapter text:\n{chapter_text}"
+    user_prompt = user_context.build()
 
     for attempt in range(max_retries):
         log_trace("Attempt", str(attempt + 1))
