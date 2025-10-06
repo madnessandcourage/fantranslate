@@ -3,7 +3,8 @@
 # Activate virtual environment
 source venv/bin/activate
 
-
+# Change to playground directory
+cd playground
 
 # Run the main script with all arguments
 fantranslate "$@"

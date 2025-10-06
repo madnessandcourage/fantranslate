@@ -117,3 +117,12 @@ dmypy.json
 .vscode/
 .idea/
 .swp
+
+# Playground files
+playground/*.yml
+playground/*.json
+playground/*.epub
+playground/*.fb2
+playground/*.pdf
+playground/chapters/
+playground/translations/
