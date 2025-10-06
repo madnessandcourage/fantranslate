@@ -167,11 +167,7 @@ def yesno(
     )
 
     # Check if context already has examples
-    has_examples = any(
-        part["type"] in ["good_example", "bad_example"] for part in context.parts
-    )
-
-    if not has_examples:
+    if not context.has_examples():
         # Add built-in examples
         context = context.example(in_="Is Paris the capital of France?", out="YES")
         context = context.example(

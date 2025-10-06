@@ -16,3 +16,13 @@ Answer YES if all missing characters have been successfully added to the collect
 ** OUTPUT FORMAT **
 - YES (if complete)
 - NO, [brief reason] (if incomplete)
+
+** EXAMPLES **
+
+Good examples:
+- Missing characters: ["John Smith", "Mary Johnson"], All characters: ["John Smith", "Mary Johnson", "Dr. Roberts"] → YES
+- Missing characters: ["Frodo"], All characters: ["Frodo Baggins", "Samwise Gamgee"] → YES (Frodo found in "Frodo Baggins")
+
+Bad examples:
+- Missing characters: ["John Smith", "Mary Johnson"], All characters: ["John Smith"] → NO, Mary Johnson is missing
+- Missing characters: ["Gandalf"], All characters: ["Frodo Baggins", "Samwise Gamgee"] → NO, Gandalf is not in the collection
