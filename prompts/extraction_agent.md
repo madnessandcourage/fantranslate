@@ -22,6 +22,9 @@ For each missing character, use the available character tools to:
 - GetAllCharacters: Get a list of all characters in the system with their names, short names, and genders
 
  ** GUIDELINES **
+- **CHECK EXISTING CHARACTERS FIRST**: Always use GetAllCharacters at the beginning to see what characters already exist in the collection
+- **AVOID DUPLICATES**: Before creating any new character, search for similar names using SearchCharacter to ensure it doesn't already exist
+- **ADD SHORT NAMES INSTEAD OF DUPLICATES**: If a character with a similar name already exists, consider adding the new name as a short name using AddCharacterShortName instead of creating a duplicate
 - Be thorough in extracting character information
 - Only create characters that are explicitly listed as missing
 - Use the chapter text as the source of truth for all character information

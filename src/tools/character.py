@@ -93,6 +93,12 @@ def create_character(name: str, gender: str = "UNKNOWN") -> str:
         if not name or not name.strip():
             return "Error creating character: Character name cannot be empty"
 
+        # Check for existing character with similar name using fuzzy matching
+        existing_character = character_collection.search(name.strip())
+        if existing_character:
+            existing_name = existing_character.name.original_text
+            return f"Error creating character: A character with a similar name '{existing_name}' already exists. Consider editing the existing character instead of creating a duplicate. Use AddCharacterShortName to add '{name}' as a short name if appropriate."
+
         character = Character(
             name=name,
             gender=gender,
