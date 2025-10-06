@@ -186,6 +186,10 @@ class TestCharacterCLI:
         mock_character.update = MagicMock()
         mock_character.add_characteristic = MagicMock()
         mock_character.remove_characteristic = MagicMock()
+        # Mock the name attribute for duplicate checking
+        mock_name = MagicMock()
+        mock_name.original_text = "Alice"
+        mock_character.name = mock_name
         mock_collection.search.return_value = mock_character
         mock_collection.rebuild_index = MagicMock()
         mock_load.return_value = mock_collection
@@ -208,6 +212,45 @@ class TestCharacterCLI:
         mock_character.add_short_name.assert_called_with("Al")
         mock_collection.rebuild_index.assert_called_once()
         mock_save.assert_called_once_with(mock_collection)
+
+    @patch("commands.character.load_character_collection")
+    @patch("commands.character.save_character_collection")
+    def test_edit_add_short_name_duplicate_full_name(self, mock_save, mock_load):
+        """Test character edit rejecting short name that matches full name."""
+        mock_collection = MagicMock()
+        mock_character = MagicMock()
+        mock_character.add_short_name = MagicMock()
+        mock_character.update = MagicMock()
+        mock_character.add_characteristic = MagicMock()
+        mock_character.remove_characteristic = MagicMock()
+        # Mock the name attribute for duplicate checking
+        mock_name = MagicMock()
+        mock_name.original_text = "Dumbledore"
+        mock_character.name = mock_name
+        mock_collection.search.return_value = mock_character
+        mock_collection.rebuild_index = MagicMock()
+        mock_load.return_value = mock_collection
+
+        args = MagicMock()
+        args.search_query = "Dumbledore"
+        args.add_short_name = ["Dumbledore"]
+        args.remove_short_name = None
+        args.gender = None
+        args.change_name = None
+        args.add_characteristic = None
+        args.remove_characteristic = None
+
+        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            handle_edit(args)
+
+        output = mock_stdout.getvalue()
+        assert "cannot be the same as the character's full name" in output
+        assert "Error:" in output
+        # add_short_name should not be called
+        mock_character.add_short_name.assert_not_called()
+        # Since no changes were made, rebuild_index and save should not be called
+        mock_collection.rebuild_index.assert_not_called()
+        mock_save.assert_not_called()
 
     @patch("commands.character.load_character_collection")
     @patch("commands.character.save_character_collection")
