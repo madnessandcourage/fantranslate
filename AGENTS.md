@@ -204,7 +204,7 @@ If LangChain's verbose mode is ever needed for debugging specific LangChain issu
 ## Project Infrastructure
 
 - **Venv management**: Use `./script/setup` to setup venv and install dependencies, `./script/fantranslate` to run, `./script/lint` to lint, etc. No direct pip installs - only through scripts.
-- **Standardized scripts**: Implement consistent script infrastructure with proper flags (-e for editable installs).
+- **Standardized scripts**: Implement consistent script infrastructure with proper flags (-e for bash scripts to fail on first error).
 - **Gitignore patterns**: Use specific gitignore patterns for project artifacts (playground folders, etc.). **NEVER** put ai_recordings into .gitignore.
 - **Code organization**: Split large functionality into appropriate subdirectories (src/commands/, src/tools/, etc.).
 
