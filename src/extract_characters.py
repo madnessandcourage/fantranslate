@@ -58,22 +58,7 @@ def detection_judge(
             + "\n".join(existing_chars_display),
         )
         .add("Chapter Text", chapter_text)
-        .add(
-            "Task",
-            "Extract a list of character names that appear in the chapter but are NOT in the existing character collection. Only include names that clearly refer to characters (people, not places, objects, etc.).",
-        )
-        .add(
-            "Output Format",
-            'Return a JSON array of strings, where each string is a character name found in the chapter that is missing from the collection.\n\nExample: ["John Smith", "Mary Johnson", "Dr. Roberts"]',
-        )
-        .add(
-            "Guidelines",
-            "- Only include proper names that refer to people/characters\n"
-            + "- Include both full names and nicknames if they appear\n"
-            + "- Do not include place names, object names, or abstract concepts\n"
-            + "- If a character is already in the collection (by any of their names or short names), do not include them\n"
-            + "- Be thorough but avoid false positives",
-        )
+        .pipe("detection_judge")
     )
 
     system_prompt = context.build()
@@ -143,31 +128,28 @@ def extraction_agent(
     system_prompt = context.build()
     user_query = f"Extract the following characters from this chapter: {missing_characters}\n\nChapter text:\n{chapter_text}"
 
-    # Track characters before extraction
-    initial_count = len(character_collection.characters)
-
     # Call agent with extraction tools
     response, _ = agent(system_prompt, user_query, extraction_tools)
 
-    # Get the actual newly added characters
-    new_characters = []
-    for char in character_collection.characters[initial_count:]:
-        new_characters.append(char.name.original_text)
+    # Get all characters after extraction
+    all_characters = [
+        char.name.original_text for char in character_collection.characters
+    ]
 
     log_info(f"Extraction agent completed: {response[:100]}...")
-    log_info(f"Added {len(new_characters)} new characters: {new_characters}")
+    log_info(f"Total characters in collection: {len(all_characters)}")
     log_exit("extraction_agent")
-    return response, new_characters
+    return response, all_characters
 
 
 def completeness_judge(
-    missing_characters: List[str], new_characters: List[str]
+    missing_characters: List[str], all_characters: List[str]
 ) -> bool:
     """Judge if all missing characters have been successfully extracted.
 
     Args:
         missing_characters: Original list of missing character names
-        new_characters: List of characters that were added during extraction
+        all_characters: Full list of character names in the collection after extraction
 
     Returns:
         True if all missing characters were extracted, False otherwise
@@ -176,7 +158,7 @@ def completeness_judge(
 
     user_prompt = (
         f"Missing characters that should have been extracted: {missing_characters}\n"
-        f"New characters that were added to the collection: {new_characters}\n\n"
+        f"All characters currently in the collection: {all_characters}\n\n"
         f"Have all the missing characters been successfully added to the collection?"
     )
 
@@ -222,11 +204,11 @@ def extract_characters_from_chapter(chapter_path: str) -> bool:
             return True
 
         # Step 2: Extraction agent - extract missing characters
-        _, new_characters = extraction_agent(missing_characters, chapter_text)
+        _, all_characters = extraction_agent(missing_characters, chapter_text)
         log_info("Character extraction completed")
 
         # Step 3: Completeness judge - verify all were extracted
-        is_complete = completeness_judge(missing_characters, new_characters)
+        is_complete = completeness_judge(missing_characters, all_characters)
 
         # Save the updated collection
         from helpers.settings import DEFAULT_CHARACTERS_STORAGE
