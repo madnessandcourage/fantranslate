@@ -33,19 +33,8 @@ def test_settings_success(tmp_path: Path):
 
 def test_settings_file_not_found(tmp_path: Path):
     os.chdir(str(tmp_path))
-    # Ensure project.yml doesn't exist in RESOURCE_DIR either
-    from src.helpers.settings import RESOURCE_DIR
-    resource_project_file = os.path.join(RESOURCE_DIR, "project.yml")
-    if os.path.exists(resource_project_file):
-        os.rename(resource_project_file, resource_project_file + ".backup")
-
-    try:
-        with pytest.raises(FileNotFoundError, match="project.yml not found"):
-            settings()
-    finally:
-        # Restore the file if it existed
-        if os.path.exists(resource_project_file + ".backup"):
-            os.rename(resource_project_file + ".backup", resource_project_file)
+    with pytest.raises(FileNotFoundError, match="project.yml not found"):
+        settings()
 
 
 def test_settings_missing_languages(tmp_path: Path):

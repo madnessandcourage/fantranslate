@@ -22,6 +22,14 @@ This document provides guidelines for AI agents and automated tools working on t
 - For new features, update `src/main.py` and adjust entry points in `pyproject.toml` if needed.
 - Commit changes only when explicitly requested.
 
+### Testing on Real Projects
+
+Since `./script/fantranslate` executes in the "playground" folder, you need to set up the project configuration there:
+
+1. Run `./script/fantranslate init` to create `project.yml` in the playground folder
+2. Copy any required resources (like chapter files) to the playground folder
+3. Then run other commands like `./script/fantranslate extract_characters chapter.txt`
+
 ## Security
 
 - Never introduce code that exposes secrets or keys.
