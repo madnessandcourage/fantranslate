@@ -89,6 +89,24 @@ def test_add_character_short_name(
 
 @patch("models.character.settings")
 @patch("models.character_collection.settings")
+def test_add_character_short_name_duplicate_full_name(
+    mock_collection_settings: MagicMock, mock_character_settings: MagicMock
+) -> None:
+    """Test that adding a short name that matches the full name is rejected."""
+    settings_obj = Settings(
+        languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
+    )
+    mock_collection_settings.return_value = settings_obj
+    mock_character_settings.return_value = settings_obj
+    # Create character first
+    create_character("Dumbledore", "male")
+    result = add_character_short_name("Dumbledore", "Dumbledore")
+    assert "cannot be the same as the character's full name" in result
+    assert "Error adding short name" in result
+
+
+@patch("models.character.settings")
+@patch("models.character_collection.settings")
 def test_set_character_gender(
     mock_collection_settings: MagicMock, mock_character_settings: MagicMock
 ) -> None:

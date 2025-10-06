@@ -121,6 +121,11 @@ def add_character_short_name(name: str, short_name: str) -> str:
         character = character_collection.search(name)
         if not character:
             return f"Error adding short name: Character '{name}' not found in collection. Available characters: {[c.name.original_text for c in character_collection.characters]}"
+
+        # Check if short name exactly matches the full name
+        if short_name.strip().lower() == character.name.original_text.strip().lower():
+            return f"Error adding short name: Short name '{short_name}' cannot be the same as the character's full name '{character.name.original_text}'. Short names should be abbreviations or alternative forms, not duplicates of the full name."
+
         character.add_short_name(short_name)
         character_collection._rebuild_index()  # type: ignore
         return f"Short name '{short_name}' added to character '{name}' successfully"

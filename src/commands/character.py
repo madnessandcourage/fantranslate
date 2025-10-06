@@ -153,6 +153,12 @@ def handle_edit(args: argparse.Namespace) -> None:
         # Handle short name additions/removals
         if args.add_short_name:
             for name in args.add_short_name:
+                # Check if short name exactly matches the full name
+                if name.strip().lower() == character.name.original_text.strip().lower():
+                    print(
+                        f"Error: Short name '{name}' cannot be the same as the character's full name '{character.name.original_text}'. Short names should be abbreviations or alternative forms, not duplicates of the full name."
+                    )
+                    continue
                 character.add_short_name(name)
                 print(f"Added short name: {name}")
                 modified = True
@@ -315,11 +321,25 @@ def handle_create(args: argparse.Namespace) -> None:
             return
 
         # Create new character
+        # Filter out short names that match the full name
+        from typing import List, Union
+
         from models.character import Character
+        from models.translation_string import TranslationString
+
+        filtered_short_names: List[Union[str, TranslationString]] = []
+        if args.short_name:
+            for sn in args.short_name:
+                if sn.strip().lower() == args.name.strip().lower():
+                    print(
+                        f"Warning: Skipping short name '{sn}' as it matches the character's full name '{args.name}'. Short names should be abbreviations or alternative forms, not duplicates of the full name."
+                    )
+                else:
+                    filtered_short_names.append(sn)
 
         character = Character(
             name=args.name,
-            short_names=args.short_name or [],
+            short_names=filtered_short_names,
             gender=args.gender,
             characteristics=args.characteristic or [],
         )
