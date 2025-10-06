@@ -2,16 +2,51 @@ import json
 import os
 from typing import List
 
-from langchain.tools import Tool
+from langchain.tools import StructuredTool
+from pydantic import BaseModel, Field
 
 from helpers.settings import DEFAULT_CHARACTERS_STORAGE, settings
 from models.character import Character, TranslatedCharacter
 from models.character_collection import CharacterCollection
+from tracing import log_llm_tool
 
 # Global character collection
 character_collection = CharacterCollection()
 if os.path.exists(DEFAULT_CHARACTERS_STORAGE):
     character_collection = CharacterCollection.from_file(DEFAULT_CHARACTERS_STORAGE)
+
+
+# Pydantic models for tool arguments
+class SearchCharacterArgs(BaseModel):
+    query: str = Field(
+        description="The search query for finding a character by name or short name"
+    )
+
+
+class CreateCharacterArgs(BaseModel):
+    name: str = Field(description="The name of the character to create")
+    gender: str = Field(
+        default="UNKNOWN", description="The gender of the character (optional)"
+    )
+
+
+class AddShortNameArgs(BaseModel):
+    name: str = Field(description="The name of the existing character")
+    short_name: str = Field(description="The short name to add to the character")
+
+
+class SetGenderArgs(BaseModel):
+    name: str = Field(description="The name of the existing character")
+    gender: str = Field(description="The gender to set for the character")
+
+
+class GetTranslationArgs(BaseModel):
+    name: str = Field(description="The name of the character")
+    language: str = Field(description="The language code to translate to")
+
+
+class GetAllCharactersArgs(BaseModel):
+    pass  # No arguments needed
 
 
 def _character_to_xml(translated: TranslatedCharacter) -> str:
@@ -121,43 +156,81 @@ def get_all_characters() -> str:
     return "".join(xml_parts)
 
 
-search_character_tool = Tool(
+def _search_character_with_logging(args: SearchCharacterArgs) -> str:
+    log_llm_tool("SearchCharacter", args.query)
+    return search_character(args.query)
+
+
+def _create_character_with_logging(args: CreateCharacterArgs) -> str:
+    log_llm_tool("CreateCharacter", args.name, args.gender)
+    return create_character(args.name, args.gender)
+
+
+def _add_short_name_with_logging(args: AddShortNameArgs) -> str:
+    log_llm_tool("AddCharacterShortName", args.name, args.short_name)
+    return add_character_short_name(args.name, args.short_name)
+
+
+def _set_gender_with_logging(args: SetGenderArgs) -> str:
+    log_llm_tool("SetCharacterGender", args.name, args.gender)
+    return set_character_gender(args.name, args.gender)
+
+
+def _get_translation_with_logging(args: GetTranslationArgs) -> str:
+    log_llm_tool("GetCharacterTranslation", args.name, args.language)
+    return get_character_translation(
+        json.dumps({"name": args.name, "language": args.language})
+    )
+
+
+def _get_all_characters_with_logging(args: GetAllCharactersArgs) -> str:
+    log_llm_tool("GetAllCharacters")
+    return get_all_characters()
+
+
+search_character_tool = StructuredTool.from_function(
+    func=_search_character_with_logging,
     name="SearchCharacter",
     description="Search for an existing character by name or short name using fuzzy matching.",
-    func=search_character,
+    args_schema=SearchCharacterArgs,
 )
 
-create_character_tool = Tool(
+create_character_tool = StructuredTool.from_function(
+    func=_create_character_with_logging,
     name="CreateCharacter",
     description="Create a new character with the provided information.",
-    func=create_character,
+    args_schema=CreateCharacterArgs,
 )
 
-add_short_name_tool = Tool(
+add_short_name_tool = StructuredTool.from_function(
+    func=_add_short_name_with_logging,
     name="AddCharacterShortName",
     description="Add a short name to an existing character.",
-    func=add_character_short_name,
+    args_schema=AddShortNameArgs,
 )
 
-set_gender_tool = Tool(
+set_gender_tool = StructuredTool.from_function(
+    func=_set_gender_with_logging,
     name="SetCharacterGender",
     description="Set the gender of an existing character.",
-    func=set_character_gender,
+    args_schema=SetGenderArgs,
 )
 
-get_character_translation_tool = Tool(
+get_character_translation_tool = StructuredTool.from_function(
+    func=_get_translation_with_logging,
     name="GetCharacterTranslation",
     description="Get character information translated to the specified language.",
-    func=get_character_translation,
+    args_schema=GetTranslationArgs,
 )
 
-get_all_characters_tool = Tool(
+get_all_characters_tool = StructuredTool.from_function(
+    func=_get_all_characters_with_logging,
     name="GetAllCharacters",
     description="Get a list of all characters in the system with their names, short names, and genders.",
-    func=get_all_characters,
+    args_schema=GetAllCharactersArgs,
 )
 
-character_tools: List[Tool] = [
+character_tools: List[StructuredTool] = [
     search_character_tool,
     create_character_tool,
     add_short_name_tool,

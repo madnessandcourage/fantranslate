@@ -130,17 +130,28 @@ def agent(
         memory=memory,
         verbose=False,  # We use our custom tracing framework instead
         handle_parsing_errors=True,
+        max_iterations=10,  # Limit iterations to prevent infinite loops
+        max_execution_time=300,  # 5 minutes max execution time
+        return_intermediate_steps=True,  # Return steps for error analysis
     )
 
-    # Run the agent
-    response = agent_executor.invoke({"input": user_query})
+    # Run the agent with error handling
+    try:
+        response = agent_executor.invoke({"input": user_query})
 
-    # Get the output
-    output = response["output"]
-    log_llm_ai(output)
+        # Get the output
+        output = response["output"]
+        log_llm_ai(output)
 
-    # Get updated chat history
-    chat_history = memory.chat_memory.messages
+        # Get updated chat history
+        chat_history = memory.chat_memory.messages
+
+    except Exception as e:
+        error_msg = f"Agent execution failed: {str(e)}"
+        log_error(error_msg)
+        # Return error message to user instead of crashing
+        output = f"I encountered an error while processing your request: {str(e)}. Please try rephrasing your request or check if all required information is provided."
+        chat_history = memory.chat_memory.messages
 
     log_exit("agent")
     return output, chat_history
