@@ -10,6 +10,7 @@ from tools.character import (
     get_character_translation,
     search_character,
     set_character_gender,
+    update_character_name,
 )
 from tools.hello import hello_tool
 
@@ -23,12 +24,13 @@ def test_hello_tool():
 
 def test_character_tools():
     """Test that character tools are defined."""
-    assert len(character_tools) == 6
+    assert len(character_tools) == 7
     names = [tool.name for tool in character_tools]
     assert "SearchCharacter" in names
     assert "CreateCharacter" in names
     assert "AddCharacterShortName" in names
     assert "SetCharacterGender" in names
+    assert "UpdateCharacterName" in names
     assert "GetCharacterTranslation" in names
     assert "GetAllCharacters" in names
 
@@ -102,6 +104,23 @@ def test_set_character_gender(
     create_character("Frodo Baggins", "male")
     result = set_character_gender("Frodo Baggins", "female")
     assert "Gender of character 'Frodo Baggins' set to 'female'" in result
+
+
+@patch("models.character.settings")
+@patch("models.character_collection.settings")
+def test_update_character_name(
+    mock_collection_settings: MagicMock, mock_character_settings: MagicMock
+) -> None:
+    """Test updating character name."""
+    settings_obj = Settings(
+        languages=["en", "ru", "fr"], translate_from="jp", translate_to="en"
+    )
+    mock_collection_settings.return_value = settings_obj
+    mock_character_settings.return_value = settings_obj
+    # Create character first
+    create_character("Narrator", "unknown")
+    result = update_character_name("Narrator", "John Smith")
+    assert "Name of character changed from 'Narrator' to 'John Smith'" in result
 
 
 @patch("tools.character.settings")

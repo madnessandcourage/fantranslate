@@ -85,6 +85,19 @@ def set_character_gender(name: str, gender: str) -> str:
         return f"Error setting gender: {str(e)}"
 
 
+def update_character_name(current_name: str, new_name: str) -> str:
+    """Update the name of an existing character. Input: current character name, new name."""
+    try:
+        character = character_collection.search(current_name)
+        if not character:
+            return f"Character '{current_name}' not found"
+        character.update(name=new_name)
+        character_collection._rebuild_index()  # type: ignore
+        return f"Name of character changed from '{current_name}' to '{new_name}'"
+    except Exception as e:
+        return f"Error updating character name: {str(e)}"
+
+
 def get_character_translation(input_str: str) -> str:
     """Get character information translated to a language. Input: JSON with name and language."""
     try:
@@ -145,6 +158,12 @@ set_gender_tool = Tool(
     func=set_character_gender,
 )
 
+update_name_tool = Tool(
+    name="UpdateCharacterName",
+    description="Update the name of an existing character.",
+    func=update_character_name,
+)
+
 get_character_translation_tool = Tool(
     name="GetCharacterTranslation",
     description="Get character information translated to the specified language.",
@@ -162,6 +181,7 @@ character_tools: List[Tool] = [
     create_character_tool,
     add_short_name_tool,
     set_gender_tool,
+    update_name_tool,
     get_character_translation_tool,
     get_all_characters_tool,
 ]

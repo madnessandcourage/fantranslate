@@ -14,7 +14,10 @@ Answer YES if all missing characters have been successfully added to the collect
 - NO: One or more characters from the missing list are not found in the all characters
 
 ** SPECIAL CONSIDERATION: NARRATOR CHARACTERS **
-Note that narrator characters may have "Narrator" added as a short name. This does not change the matching logic - characters should still be matched by their primary name or any of their short names.
+Note that narrator characters may have "Narrator" added as a short name. Characters should be matched by their primary name or any of their short names.
+
+** SPECIAL CONSIDERATION: NAME CHANGES **
+If a character was originally named "Narrator" but had their name changed to a real name during extraction, the character should be considered successfully extracted if their new real name appears in the collection.
 
 ** OUTPUT FORMAT **
 - YES (if complete)
