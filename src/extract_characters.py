@@ -210,12 +210,12 @@ def completeness_judge(
     # Build the prompt using Context
     context = (
         Context()
-        .add(
-            "Missing Characters",
+        .wrap(
+            "missing_characters",
             f"Characters that should have been extracted: {missing_characters}",
         )
-        .add(
-            "All Characters",
+        .wrap(
+            "all_characters",
             f"Characters currently in the collection: {all_characters}",
         )
         .pipe("completeness_judge")
@@ -245,9 +245,7 @@ def completeness_judge(
         )
     )
 
-    user_prompt = (
-        f"Have all the missing characters been successfully added to the collection?"
-    )
+    user_prompt = f"Have all the characters listed in <missing_characters> been successfully added to the collection shown in <all_characters>?"
 
     is_complete, reason = yesno(user_prompt, system_context=context)
 
