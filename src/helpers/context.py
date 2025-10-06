@@ -24,7 +24,10 @@ class Context:
 
     def pipe(self, filename: str) -> "Context":
         """Read content from a markdown file in the prompts directory and add it to context."""
-        filepath = os.path.join("prompts", f"{filename}.md")
+        # Calculate the project root directory relative to this file's location
+        # src/helpers/context.py -> src/helpers -> src -> project_root
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        filepath = os.path.join(base_dir, "prompts", f"{filename}.md")
         with open(filepath, "r", encoding="utf-8") as f:
             content = f.read()
         new_parts = self.parts + [{"type": "pipe", "content": content}]
