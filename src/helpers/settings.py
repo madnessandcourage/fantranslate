@@ -25,7 +25,7 @@ def settings() -> Settings:
     if __settings is not None:
         return __settings
 
-    project_file = os.path.join(os.getcwd(), "project.yml")
+    project_file = os.path.join(RESOURCE_DIR, "project.yml")
     if not os.path.exists(project_file):
         raise FileNotFoundError(f"project.yml not found in {os.getcwd()}")
 

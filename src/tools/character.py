@@ -156,36 +156,54 @@ def get_all_characters() -> str:
     return "".join(xml_parts)
 
 
-def _search_character_with_logging(args: SearchCharacterArgs) -> str:
-    log_llm_tool("SearchCharacter", args.query)
-    return search_character(args.query)
+def _search_character_with_logging(query: str) -> str:
+    log_llm_tool("SearchCharacter", query)
+    try:
+        return search_character(query)
+    except Exception as e:
+        return f"Error searching for character: {str(e)}"
 
 
-def _create_character_with_logging(args: CreateCharacterArgs) -> str:
-    log_llm_tool("CreateCharacter", args.name, args.gender)
-    return create_character(args.name, args.gender)
+def _create_character_with_logging(name: str, gender: str = "UNKNOWN") -> str:
+    log_llm_tool("CreateCharacter", name, gender)
+    try:
+        return create_character(name, gender)
+    except Exception as e:
+        return f"Error creating character: {str(e)}"
 
 
-def _add_short_name_with_logging(args: AddShortNameArgs) -> str:
-    log_llm_tool("AddCharacterShortName", args.name, args.short_name)
-    return add_character_short_name(args.name, args.short_name)
+def _add_short_name_with_logging(name: str, short_name: str) -> str:
+    log_llm_tool("AddCharacterShortName", name, short_name)
+    try:
+        return add_character_short_name(name, short_name)
+    except Exception as e:
+        return f"Error adding short name: {str(e)}"
 
 
-def _set_gender_with_logging(args: SetGenderArgs) -> str:
-    log_llm_tool("SetCharacterGender", args.name, args.gender)
-    return set_character_gender(args.name, args.gender)
+def _set_gender_with_logging(name: str, gender: str) -> str:
+    log_llm_tool("SetCharacterGender", name, gender)
+    try:
+        return set_character_gender(name, gender)
+    except Exception as e:
+        return f"Error setting gender: {str(e)}"
 
 
-def _get_translation_with_logging(args: GetTranslationArgs) -> str:
-    log_llm_tool("GetCharacterTranslation", args.name, args.language)
-    return get_character_translation(
-        json.dumps({"name": args.name, "language": args.language})
-    )
+def _get_translation_with_logging(name: str, language: str) -> str:
+    log_llm_tool("GetCharacterTranslation", name, language)
+    try:
+        return get_character_translation(
+            json.dumps({"name": name, "language": language})
+        )
+    except Exception as e:
+        return f"Error getting translation: {str(e)}"
 
 
-def _get_all_characters_with_logging(args: GetAllCharactersArgs) -> str:
+def _get_all_characters_with_logging() -> str:
     log_llm_tool("GetAllCharacters")
-    return get_all_characters()
+    try:
+        return get_all_characters()
+    except Exception as e:
+        return f"Error getting all characters: {str(e)}"
 
 
 search_character_tool = StructuredTool.from_function(  # type: ignore[reportUnknownMemberType] # LangChain type stubs are incomplete
