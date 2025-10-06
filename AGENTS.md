@@ -155,9 +155,9 @@ If LangChain's verbose mode is ever needed for debugging specific LangChain issu
 ## AI Prompt Engineering
 
 - **Use ContextManager for prompt composition**: Build complex AI prompts using immutable ContextManager patterns with sections, wrapped content, examples, and failure examples.
-- **Implement retry logic**: AI calls should include retry mechanisms (default 3 retries) for unreliable responses.
+- **Implement retry logic**: AI calls should include retry mechanisms (default 3 retries) for prompts where we can 100% check that AI failed and enforce retry.
 - **Stabilize prompts with examples**: Provide good and bad examples in prompts to improve AI response consistency.
-- **Use specific response formats**: For AI judges, require exact formats like "YES" or "NO, <reason>" with no additional prefixes.
+- **Use specific response formats**: For yesno prompts, require exact formats like "YES" or "NO, <reason>" with no additional prefixes.
 - **Prefer XML for AI data**: When serializing data for AI consumption, prefer XML over JSON as AIs handle XML better.
 
 ## API Design Patterns
